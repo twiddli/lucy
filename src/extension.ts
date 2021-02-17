@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { WorkspaceStateKey, WorkspaceStateValue } from "./constants";
+import { WorkspaceStateKey, WorkspaceStateValue } from "./types";
 import { registerReminder } from "./reminder";
 import { isNewCodingSession } from "./utils";
 import { event, stateListeners } from "./event";
@@ -31,7 +31,6 @@ function setupStatusbarItem(context: vscode.ExtensionContext) {
 function setupEvents(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.onDidChangeWindowState((e) => {
-      context.workspaceState.update(WorkspaceStateKey.active, e.focused);
       if (e.focused) {
         let last_active = context.workspaceState.get<
           WorkspaceStateValue[WorkspaceStateKey.last_active]
@@ -42,7 +41,7 @@ function setupEvents(context: vscode.ExtensionContext) {
 
         if (last_active) {
           if (isNewCodingSession(last_active)) {
-            event.session = true;
+            event.sessionActive = true;
           }
         }
       }
@@ -66,6 +65,7 @@ function setup(context: vscode.ExtensionContext) {
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  event.context = context;
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "lucy" is now active!');

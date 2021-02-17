@@ -1,7 +1,11 @@
-import { ValueOf } from "./types";
+import * as vscode from "vscode";
+import { ValueOf, Reminder } from "./types";
 
 export const initialEventState = {
-  session: false,
+  sessionActive: false,
+  lastReminder: null as Reminder | null,
+  reminders: [] as Reminder[],
+  context: null as vscode.ExtensionContext | null,
 };
 
 export type StateKey = keyof typeof initialEventState;

@@ -1,18 +1,19 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import { uncapitalize } from "./utils";
-import { WorkspaceStateKey, WorkspaceStateValue } from "./constants";
+import { capitalize, getMementoValue, uncapitalize } from "./utils";
 import { event, subscribe } from "./event";
+import { Reminder, WorkspaceStateKey } from "./types";
 
-export class ReminderProvider implements vscode.TreeDataProvider<Reminder> {
+export class ReminderTreeProvider
+  implements vscode.TreeDataProvider<ReminderTreeItem> {
   constructor(private workspaceRoot: string) {}
 
-  getTreeItem(element: Reminder): vscode.TreeItem {
+  getTreeItem(element: ReminderTreeItem): vscode.TreeItem {
     return element;
   }
 
-  getChildren(element?: Reminder): Thenable<Reminder[]> {
+  getChildren(element?: ReminderTreeItem): Thenable<ReminderTreeItem[]> {
     if (!this.workspaceRoot) {
       vscode.window.showInformationMessage("No reminders in empty workspace");
       return Promise.resolve([]);
@@ -43,23 +44,23 @@ export class ReminderProvider implements vscode.TreeDataProvider<Reminder> {
   /**
    * Given the path to package.json, read all its dependencies and devDependencies.
    */
-  private getDepsInPackageJson(packageJsonPath: string): Reminder[] {
+  private getDepsInPackageJson(packageJsonPath: string): ReminderTreeItem[] {
     if (this.pathExists(packageJsonPath)) {
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
 
-      const toDep = (moduleName: string, version: string): Reminder => {
+      const toDep = (moduleName: string, version: string): ReminderTreeItem => {
         if (
           this.pathExists(
             path.join(this.workspaceRoot, "node_modules", moduleName)
           )
         ) {
-          return new Reminder(
+          return new ReminderTreeItem(
             moduleName,
             version,
             vscode.TreeItemCollapsibleState.Collapsed
           );
         } else {
-          return new Reminder(
+          return new ReminderTreeItem(
             moduleName,
             version,
             vscode.TreeItemCollapsibleState.None
@@ -93,7 +94,7 @@ export class ReminderProvider implements vscode.TreeDataProvider<Reminder> {
   }
 }
 
-class Reminder extends vscode.TreeItem {
+class ReminderTreeItem extends vscode.TreeItem {
   constructor(
     public readonly label: string,
     private version: string,
@@ -124,8 +125,32 @@ class Reminder extends vscode.TreeItem {
   };
 }
 
+function createReminder(text: string) {
+  const added = new Date();
+
+  const reminder: Reminder = {
+    text: capitalize(text),
+    added,
+    cleared: false,
+    clearDate: null,
+  };
+
+  const reminders = [...event.reminders, reminder];
+
+  if (event.context) {
+    event.context.workspaceState.update(WorkspaceStateKey.reminders, reminders);
+  }
+
+  event.reminders = reminders;
+  event.lastReminder = reminder;
+
+  vscode.window.showInformationMessage(
+    `Master, on your next session I will remind you to ${uncapitalize(text)!}`
+  );
+}
+
 function setupEvents(context: vscode.ExtensionContext) {
-  subscribe("session", (value) => {
+  subscribe("sessionActive", (value) => {
     if (value) {
       vscode.window.showInformationMessage(
         `Master, a new coding session has begun!`
@@ -147,11 +172,7 @@ export function registerReminder(context: vscode.ExtensionContext) {
           return;
         }
 
-        vscode.window.showInformationMessage(
-          `Master, on your next session I will remind you to ${uncapitalize(
-            reminder
-          )!}`
-        );
+        createReminder(reminder);
       });
   });
   context.subscriptions.push(reminder);

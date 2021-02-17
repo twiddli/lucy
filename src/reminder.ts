@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import { capitalize, getMementoValue, uncapitalize } from "./utils";
+import { capitalize, getMementoValue, uncapitalize, generateID } from "./utils";
 import { event, subscribe } from "./event";
 import { Reminder, WorkspaceStateKey } from "./types";
 
@@ -129,8 +129,10 @@ function createReminder(text: string) {
   const added = new Date();
 
   const reminder: Reminder = {
+    id: generateID(),
     text: capitalize(text),
     added,
+    active: false,
     cleared: false,
     clearDate: null,
   };
@@ -159,7 +161,14 @@ function setupEvents(context: vscode.ExtensionContext) {
   });
 }
 
+function loadState(context: vscode.ExtensionContext) {
+  event.reminders =
+    getMementoValue(context.workspaceState, WorkspaceStateKey.reminders) ?? [];
+}
+
 export function registerReminder(context: vscode.ExtensionContext) {
+  loadState(context);
+
   let reminder = vscode.commands.registerCommand("lucy.remind", () => {
     vscode.window
       .showInputBox({

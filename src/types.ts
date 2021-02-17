@@ -4,8 +4,10 @@ export enum WorkspaceStateKey {
 }
 
 export interface Reminder {
+  id: string;
   text: string;
   added: Date;
+  active: boolean;
   cleared: boolean;
   clearDate: Date | null;
 }

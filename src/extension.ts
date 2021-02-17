@@ -3,6 +3,8 @@
 import * as vscode from "vscode";
 import { WorkspaceStateKey, WorkspaceStateValue } from "./constants";
 import { registerReminder } from "./reminder";
+import { isNewCodingSession } from "./utils";
+import { event, stateListeners } from "./event";
 
 function updateStatus(status: vscode.StatusBarItem): void {
   const enabled = true;
@@ -31,17 +33,17 @@ function setupEvents(context: vscode.ExtensionContext) {
     vscode.window.onDidChangeWindowState((e) => {
       context.workspaceState.update(WorkspaceStateKey.active, e.focused);
       if (e.focused) {
-        const last_active = context.workspaceState.get<
+        let last_active = context.workspaceState.get<
           WorkspaceStateValue[WorkspaceStateKey.last_active]
         >(WorkspaceStateKey.last_active);
+        if (last_active) {
+          last_active = new Date(last_active);
+        }
 
         if (last_active) {
-          const diff = Math.floor(
-            Math.abs(last_active.getTime() - Date.now()) / 1000 / 60
-          );
-          vscode.window.showInformationMessage(
-            `Master... Last focus was ${diff} minutes ago`
-          );
+          if (isNewCodingSession(last_active)) {
+            event.session = true;
+          }
         }
       }
 

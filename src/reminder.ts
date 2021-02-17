@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { uncapitalize } from "./utils";
 import { WorkspaceStateKey, WorkspaceStateValue } from "./constants";
+import { event, subscribe } from "./event";
 
 export class ReminderProvider implements vscode.TreeDataProvider<Reminder> {
   constructor(private workspaceRoot: string) {}
@@ -123,7 +124,15 @@ class Reminder extends vscode.TreeItem {
   };
 }
 
-function setupEvents(context: vscode.ExtensionContext) {}
+function setupEvents(context: vscode.ExtensionContext) {
+  subscribe("session", (value) => {
+    if (value) {
+      vscode.window.showInformationMessage(
+        `Master, a new coding session has begun!`
+      );
+    }
+  });
+}
 
 export function registerReminder(context: vscode.ExtensionContext) {
   let reminder = vscode.commands.registerCommand("lucy.remind", () => {
@@ -143,20 +152,9 @@ export function registerReminder(context: vscode.ExtensionContext) {
             reminder
           )!}`
         );
-
-        // reminder time
-        // const timePeriod = datefns.differenceInMilliseconds(
-        //   event.startDate,
-        //   new Date()
-        // );
-        // var timer = setInterval(function () {
-        //   vscode.window
-        //     .showInformationMessage(`⏰  '${event.eventTitle}' now! ⏰`)
-        //     .then(() => {
-        //       clearTimeout(timer);
-        //     });
-        // }, timePeriod);
       });
   });
   context.subscriptions.push(reminder);
+
+  setupEvents(context);
 }

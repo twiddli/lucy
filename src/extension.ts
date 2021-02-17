@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import { WorkspaceStateKey, WorkspaceStateValue } from "./types";
 import { registerReminder } from "./reminder";
-import { isNewCodingSession } from "./utils";
+import { getMementoValue, isNewCodingSession } from "./utils";
 import { event, stateListeners } from "./event";
 
 function updateStatus(status: vscode.StatusBarItem): void {
@@ -32,12 +32,10 @@ function setupEvents(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.onDidChangeWindowState((e) => {
       if (e.focused) {
-        let last_active = context.workspaceState.get<
-          WorkspaceStateValue[WorkspaceStateKey.last_active]
-        >(WorkspaceStateKey.last_active);
-        if (last_active) {
-          last_active = new Date(last_active);
-        }
+        let last_active = getMementoValue(
+          context.workspaceState,
+          WorkspaceStateKey.last_active
+        );
 
         if (last_active) {
           if (isNewCodingSession(last_active)) {

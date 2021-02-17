@@ -30,6 +30,9 @@ export function getMementoValue<
   let value = storage.get(key as string);
 
   if (value !== undefined) {
+    if (key === WorkspaceStateKey.last_active)
+      value = new Date(value as string);
+
     return value as T[K];
   }
 

@@ -5,50 +5,37 @@ import { WorkspaceStateKey, WorkspaceStateValue } from "./types";
 import { registerReminder } from "./reminder";
 import { isNewCodingSession } from "./utils";
 import { event, stateListeners } from "./event";
+import { setupStatusbarItem } from "./statusbar";
 
-function updateStatus(status: vscode.StatusBarItem): void {
-  const enabled = true;
-  status.text = "Lucy";
-  status.tooltip = "Lucy";
-  //   status.color = info ? info.color : undefined;
-
-  if (enabled) {
-    status.show();
-  } else {
-    status.hide();
-  }
-}
-
-function setupStatusbarItem(context: vscode.ExtensionContext) {
-  const status = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    1
-  );
-  context.subscriptions.push(status);
-  updateStatus(status);
-}
 
 function setupEvents(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.onDidChangeWindowState((e) => {
       if (e.focused) {
-        let last_active = context.workspaceState.get<
-          WorkspaceStateValue[WorkspaceStateKey.last_active]
-        >(WorkspaceStateKey.last_active);
-        if (last_active) {
-          last_active = new Date(last_active);
-        }
+        event.context?.workspaceState.update(
+          WorkspaceStateKey.last_focus,
+          new Date()
+        );
 
-        if (last_active) {
-          if (isNewCodingSession(last_active)) {
+        /*let last_active = context.workspaceState.get<
+          WorkspaceStateValue[WorkspaceStateKey.last_active]
+        >(WorkspaceStateKey.last_active);*/
+        let last_defocus = event.context?.workspaceState.get<Date>(WorkspaceStateKey.last_defocus);
+        if (last_defocus) {
+          if (isNewCodingSession(last_defocus)) {
             event.sessionActive = true;
+            event.context?.workspaceState.update(
+              WorkspaceStateKey.last_active,
+              new Date()
+            );
           }
         }
       }
 
-      if (e.focused) {
-        context.workspaceState.update(
-          WorkspaceStateKey.last_active,
+      else {
+        //keep track of window de-focus date/time for session end tracking
+        event.context?.workspaceState.update(
+          WorkspaceStateKey.last_defocus,
           new Date()
         );
       }

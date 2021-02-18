@@ -15,15 +15,7 @@ function setupEvents(context: vscode.ExtensionContext) {
           WorkspaceStateKey.last_focus,
           new Date()
         );
-        // get
-        let last_active = getMementoValue(
-          context.workspaceState,
-          WorkspaceStateKey.last_active
-        );
 
-        /*let last_active = context.workspaceState.get<
-          WorkspaceStateValue[WorkspaceStateKey.last_active]
-        >(WorkspaceStateKey.last_active);*/
         let last_defocus = event.context?.workspaceState.get<Date>(
           WorkspaceStateKey.last_defocus
         );

@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { join } from "path";
+import { format } from "timeago.js";
 import {
   Reminder,
   WorkspaceStateKey,
@@ -113,6 +114,10 @@ export function getConfig(): typeof event.config {
   return {
     sessionInterval: cfg.get("sessionInterval") as number,
   };
+}
+
+export function formatTime(d: Parameters<typeof format>[0]) {
+  return format(d, "en_US");
 }
 
 export default {};

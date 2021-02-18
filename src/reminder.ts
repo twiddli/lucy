@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { format } from "timeago.js";
 import {
   capitalize,
   getMementoValue,
@@ -8,6 +7,7 @@ import {
   getPath,
   updateArrayItem,
   say,
+  formatTime,
 } from "./utils";
 import { event, subscribe } from "./event";
 import { Reminder, WorkspaceStateKey } from "./types";
@@ -55,7 +55,7 @@ class ReminderTreeItem extends vscode.TreeItem {
     public readonly collapsibleState: vscode.TreeItemCollapsibleState
   ) {
     super(`${reminder.text}`, collapsibleState);
-    const time = format(reminder.added, "en_US");
+    const time = formatTime(reminder.added);
 
     this.id = reminder.id;
     this.description = `${time} | Cleared: ${reminder.cleared}`;

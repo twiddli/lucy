@@ -3,10 +3,9 @@
 import * as vscode from "vscode";
 import { WorkspaceStateKey, WorkspaceStateValue } from "./types";
 import { registerReminder } from "./reminder";
-import { isNewCodingSession } from "./utils";
+import { getMementoValue, isNewCodingSession } from "./utils";
 import { event, stateListeners } from "./event";
 import { setupStatusbarItem } from "./statusbar";
-
 
 function setupEvents(context: vscode.ExtensionContext) {
   context.subscriptions.push(
@@ -16,11 +15,18 @@ function setupEvents(context: vscode.ExtensionContext) {
           WorkspaceStateKey.last_focus,
           new Date()
         );
+        // get
+        let last_active = getMementoValue(
+          context.workspaceState,
+          WorkspaceStateKey.last_active
+        );
 
         /*let last_active = context.workspaceState.get<
           WorkspaceStateValue[WorkspaceStateKey.last_active]
         >(WorkspaceStateKey.last_active);*/
-        let last_defocus = event.context?.workspaceState.get<Date>(WorkspaceStateKey.last_defocus);
+        let last_defocus = event.context?.workspaceState.get<Date>(
+          WorkspaceStateKey.last_defocus
+        );
         if (last_defocus) {
           if (isNewCodingSession(last_defocus)) {
             event.sessionActive = true;
@@ -30,9 +36,7 @@ function setupEvents(context: vscode.ExtensionContext) {
             );
           }
         }
-      }
-
-      else {
+      } else {
         //keep track of window de-focus date/time for session end tracking
         event.context?.workspaceState.update(
           WorkspaceStateKey.last_defocus,

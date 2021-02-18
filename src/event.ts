@@ -6,6 +6,9 @@ export const initialEventState = {
   lastReminder: null as Reminder | null,
   reminders: [] as Reminder[],
   context: null as vscode.ExtensionContext | null,
+  config: {} as {
+    sessionInterval: number;
+  },
 };
 
 export type StateKey = keyof typeof initialEventState;

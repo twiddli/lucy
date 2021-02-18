@@ -1,6 +1,12 @@
 import * as vscode from "vscode";
-import { DEFAULT_CODING_SESSION_INTERVAL } from "./constants";
-import { Reminder, WorkspaceStateKey, WorkspaceStateValue } from "./types";
+import { join } from "path";
+import {
+  Reminder,
+  WorkspaceStateKey,
+  WorkspaceStateValue,
+  PartialExcept,
+} from "./types";
+import { event } from "./event";
 
 export function uncapitalize(str1: string) {
   return str1.charAt(0).toLowerCase() + str1.slice(1);
@@ -17,7 +23,7 @@ export function isNewCodingSession(lastActive: Date) {
   vscode.window.showInformationMessage(
     `Master... Last focus was ${diff} minutes ago`
   );
-  if (diff >= DEFAULT_CODING_SESSION_INTERVAL) {
+  if (diff >= event.config.sessionInterval) {
     return true;
   }
   return false;
@@ -47,6 +53,32 @@ export function generateID(): string {
   firstPart = ("000" + firstPart.toString(36)).slice(-3);
   secondPart = ("000" + secondPart.toString(36)).slice(-3);
   return firstPart + secondPart;
+}
+
+export function getPath(path: string) {
+  return join(__dirname, "..", path);
+}
+
+export function updateArrayItem<T extends { id: any }>(
+  properties: PartialExcept<T, "id">,
+  target: T[]
+) {
+  const itemIdx = target.findIndex((v) => v.id === properties.id);
+  let item = target.find((v) => v.id === properties.id);
+  if (item) {
+    item = { ...item, ...properties };
+    const t = [...target];
+    t[itemIdx] = item;
+    return t;
+  }
+  return target;
+}
+
+export function getConfig(): typeof event.config {
+  const cfg = vscode.workspace.getConfiguration("lucy");
+  return {
+    sessionInterval: cfg.get("sessionInterval") as number,
+  };
 }
 
 export default {};

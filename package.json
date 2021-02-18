@@ -15,14 +15,52 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "properties": {
+        "lucy.sessionInterval": {
+          "type": "number",
+          "scope": "application",
+          "default": 180,
+          "description": "Minimum coding session length"
+        }
+      }
+    },
     "commands": [
       {
         "command": "lucy.remind",
         "title": "Lucy: Remind me to...",
         "icon": {
           "dark": "media/add.svg",
-          "light": "media/add.svg"
+          "light": "media/add_l.svg"
         }
+      },
+      {
+        "command": "lucy.reminderDelete",
+        "title": "Delete reminder",
+        "icon": {
+          "dark": "media/trash.svg",
+          "light": "media/trash_l.svg"
+        }
+      },
+      {
+        "command": "lucy.reminderClear",
+        "title": "Clear reminder",
+        "icon": {
+          "dark": "media/check.svg",
+          "light": "media/check_l.svg"
+        }
+      },
+      {
+        "command": "lucy.reminderClearAll",
+        "title": "Clear all reminders",
+        "icon": {
+          "dark": "media/check-all.svg",
+          "light": "media/check-all_l.svg"
+        }
+      },
+      {
+        "command": "lucy.reminderShow",
+        "title": "Show reminder"
       }
     ],
     "views": {
@@ -38,7 +76,7 @@
         {
           "id": "lucy",
           "title": "Lucy",
-          "icon": "media/dep.svg"
+          "icon": "media/girl.png"
         }
       ]
     },
@@ -54,12 +92,17 @@
           "command": "lucy.remind",
           "when": "view == lucy.reminder",
           "group": "navigation"
+        },
+        {
+          "command": "lucy.reminderClearAll",
+          "when": "view == lucy.reminder",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "command": "lucy.remind",
-          "when": "view == lucy.reminder && viewItem == reminderItem",
+          "command": "lucy.reminderClear",
+          "when": "view == lucy.reminder && viewItem =~ /reminderItem/",
           "group": "inline"
         }
       ]

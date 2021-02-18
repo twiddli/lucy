@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import { WorkspaceStateKey, WorkspaceStateValue } from "./types";
 import { registerReminder } from "./reminder";
-import { getMementoValue, isNewCodingSession } from "./utils";
+import { getConfig, getMementoValue, isNewCodingSession } from "./utils";
 import { event, stateListeners } from "./event";
 
 function updateStatus(status: vscode.StatusBarItem): void {
@@ -65,6 +65,7 @@ function setup(context: vscode.ExtensionContext) {
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
   event.context = context;
+  event.config = getConfig();
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "lucy" is now active!');

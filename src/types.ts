@@ -18,3 +18,5 @@ export type WorkspaceStateValue = {
 };
 
 export type ValueOf<T> = T[keyof T];
+
+export type PartialExcept<T, K extends keyof T> = Pick<T, K> & Partial<T>;

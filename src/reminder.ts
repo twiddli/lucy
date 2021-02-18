@@ -7,6 +7,7 @@ import {
   generateID,
   getPath,
   updateArrayItem,
+  say,
 } from "./utils";
 import { event, subscribe } from "./event";
 import { Reminder, WorkspaceStateKey } from "./types";
@@ -99,26 +100,46 @@ function createReminder(text: string) {
   );
 }
 
+// Sort by active, not cleared, cleared date and then date
+function sortReminders(reminders: Reminder[]) {
+  return reminders.sort((a, b) => {
+    return (
+      Number(b.active) - Number(a.active) ||
+      Number(a.cleared) - Number(b.cleared) ||
+      (b.clearDate?.getTime() ?? 0) - (a.clearDate?.getTime() ?? 0) ||
+      b.added.getTime() - a.added.getTime()
+    );
+  });
+}
+
 function clearReminder(reminder: Reminder) {
-  event.reminders = updateArrayItem(
-    {
-      id: reminder.id as string,
-      cleared: true,
-      clearDate: new Date(),
-      active: false,
-    },
-    event.reminders
+  event.reminders = sortReminders(
+    updateArrayItem(
+      {
+        id: reminder.id as string,
+        cleared: true,
+        clearDate: new Date(),
+        active: false,
+      },
+      event.reminders
+    )
+  );
+
+  vscode.window.showInformationMessage(
+    say("{{ compliment_c }}! You have just cleared a reminder")
   );
 }
 
 function unclearReminder(reminder: Reminder) {
-  event.reminders = updateArrayItem(
-    {
-      id: reminder.id as string,
-      cleared: false,
-      clearDate: null,
-    },
-    event.reminders
+  event.reminders = sortReminders(
+    updateArrayItem(
+      {
+        id: reminder.id as string,
+        cleared: false,
+        clearDate: null,
+      },
+      event.reminders
+    )
   );
 }
 
@@ -166,7 +187,7 @@ function registerCommands(context: vscode.ExtensionContext) {
       "lucy.reminderClear",
       (reminder: ReminderTreeItem) => {
         if (reminder) {
-          if (reminder.reminder.cleared) {
+          if (!reminder.reminder.cleared) {
             clearReminder(reminder.reminder);
           } else {
             unclearReminder(reminder.reminder);
@@ -178,8 +199,9 @@ function registerCommands(context: vscode.ExtensionContext) {
 }
 
 function loadState(context: vscode.ExtensionContext) {
-  event.reminders =
-    getMementoValue(context.workspaceState, WorkspaceStateKey.reminders) ?? [];
+  event.reminders = sortReminders(
+    getMementoValue(context.workspaceState, WorkspaceStateKey.reminders) ?? []
+  );
 }
 
 export function registerReminder(context: vscode.ExtensionContext) {

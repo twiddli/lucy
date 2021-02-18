@@ -7,6 +7,35 @@ import {
   PartialExcept,
 } from "./types";
 import { event } from "./event";
+import Sentencer from "./sentencer";
+
+const sentencer = new Sentencer({
+  compliment: function () {
+    const l = [
+      "good job master",
+      "excellent work as always master",
+      "keep up the good work master",
+    ];
+    console.log(this);
+    return l[Math.floor(Math.random() * l.length)];
+  },
+  compliment_c: function () {
+    return capitalize(this.compliment());
+  },
+  welcome: function () {
+    const l = [
+      "Master... It's good to see you",
+      "Master, work hard!",
+      "Ready for some work, master?",
+    ];
+    console.log(this);
+    return l[Math.floor(Math.random() * l.length)];
+  },
+});
+
+export function say(s: string): string {
+  return sentencer.make(s);
+}
 
 export function uncapitalize(str1: string) {
   return str1.charAt(0).toLowerCase() + str1.slice(1);
@@ -20,9 +49,7 @@ export function isNewCodingSession(lastActive: Date) {
   const diff = Math.floor(
     Math.abs(lastActive.getTime() - Date.now()) / 1000 / 60
   );
-  vscode.window.showInformationMessage(
-    `Master... Last focus was ${diff} minutes ago`
-  );
+
   if (diff >= event.config.sessionInterval) {
     return true;
   }
@@ -38,6 +65,13 @@ export function getMementoValue<
   if (value !== undefined) {
     if (key === WorkspaceStateKey.last_active)
       value = new Date(value as string);
+
+    if (key === WorkspaceStateKey.reminders)
+      value = (value as Reminder[]).map((r) => {
+        r.added = new Date(r.added);
+        if (r.clearDate) r.clearDate = new Date(r.clearDate);
+        return r;
+      });
 
     return value as T[K];
   }

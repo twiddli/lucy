@@ -18,7 +18,11 @@
     "commands": [
       {
         "command": "lucy.remind",
-        "title": "Lucy: Remind me to..."
+        "title": "Lucy: Remind me to...",
+        "icon": {
+          "dark": "media/add.svg",
+          "light": "media/add.svg"
+        }
       }
     ],
     "views": {
@@ -43,7 +47,23 @@
         "view": "lucy.reminder",
         "contents": "No reminders found.\n[Add Reminder](command:lucy.remind)"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "lucy.remind",
+          "when": "view == lucy.reminder",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "lucy.remind",
+          "when": "view == lucy.reminder && viewItem == reminderItem",
+          "group": "inline"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "yarn run package",

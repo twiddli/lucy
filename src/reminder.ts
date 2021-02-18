@@ -52,6 +52,7 @@ class ReminderTreeItem extends vscode.TreeItem {
     this.id = reminder.id;
     this.description = `${time} | Cleared: ${reminder.cleared}`;
     this.tooltip = `${reminder.text} | ${this.description}`;
+    this.contextValue = "reminderItem";
   }
 
   // iconPath = {

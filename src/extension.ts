@@ -32,6 +32,7 @@ function setupEvents(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.onDidChangeWindowState((e) => {
       if (e.focused) {
+        // get
         let last_active = getMementoValue(
           context.workspaceState,
           WorkspaceStateKey.last_active

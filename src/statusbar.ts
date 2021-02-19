@@ -4,7 +4,8 @@ import { event } from "./event";
 import { formatTime, getMementoValue } from "./utils";
 import { STATUSBAR_UPDATE_INTERVAL } from "./constants";
 
-let status: vscode.StatusBarItem;
+export let status: vscode.StatusBarItem;
+const STATUSBAR_REMINDER_LENGTH = 144;
 
 function statusState() {
   const enabled = true;
@@ -20,7 +21,7 @@ function statusState() {
 
   let timeDiff = 0;
   if (last_active) {
-    console.log("last active =", last_active, " type=", typeof last_active);
+    //console.log("last active =", last_active, " type=", typeof last_active);
     timeDiff = new Date().getTime() - last_active.getTime();
   }
 
@@ -29,11 +30,21 @@ function statusState() {
   sessionLength = `${sessionLength.split(" ")[0]} ${
     sessionLength.split(" ")[1]
   }`;
-
+  const minsDiff = Math.floor(timeDiff / 1000 / 60);
+  const hrsDiff = Math.floor(minsDiff / 60);
+  
   const sep = "$(kebab-vertical)";
   const remindersCount = event.reminders.filter((r) => !r.cleared).length;
-  const text = `| Lucy ${sep} $(loading~spin) ${sessionLength} ${sep} Reminders: ${remindersCount} |`;
-  const tooltip = "Lucy";
+  let text = `| Lucy ${sep} $(loading~spin) Current session: ${hrsDiff}h ${minsDiff}m ${sep}`;
+  if (remindersCount == 0) {
+    text += ` No reminders |`;
+  }
+  else {
+    const firstReminder = event.reminders[0];
+    text += ` Reminders: ${remindersCount} ${sep} First reminder: ${firstReminder?.text.substr(0, STATUSBAR_REMINDER_LENGTH)} |`;
+  }
+
+  const tooltip = "Lucy keeps track of your tasks, Master!";
 
   return {
     enabled,
@@ -88,6 +99,6 @@ export function setupStatusbarItem(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(status);
   updateStatus(status);
-
+  
   timeoutID = setInterval(updateStatusInterval, STATUSBAR_UPDATE_INTERVAL);
 }

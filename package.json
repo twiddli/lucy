@@ -21,7 +21,7 @@
           "type": "number",
           "scope": "application",
           "default": 180,
-          "description": "Minimum coding session length"
+          "description": "Minimum window de-focus duration before new coding session (minutes)"
         }
       }
     },

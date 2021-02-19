@@ -48,7 +48,7 @@ export function capitalize(str1: string) {
 
 export function isNewCodingSession(lastActive: Date) {
   const diff = Math.floor(
-    Math.abs(lastActive.getTime() - Date.now()) / 1000 / 60
+    Math.abs(lastActive.getTime() - new Date().getTime()) / 1000 / 60
   );
 
   if (diff >= event.config.sessionInterval) {

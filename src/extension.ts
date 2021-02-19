@@ -5,7 +5,7 @@ import { WorkspaceStateKey, WorkspaceStateValue } from "./types";
 import { registerReminder } from "./reminder";
 import { getConfig, getMementoValue, isNewCodingSession, say } from "./utils";
 import { event, stateListeners } from "./event";
-import { setupStatusbarItem } from "./statusbar";
+import { setupStatusbarItem, updateStatus, status } from "./statusbar";
 
 function setupEvents(context: vscode.ExtensionContext) {
   context.subscriptions.push(
@@ -26,6 +26,7 @@ function setupEvents(context: vscode.ExtensionContext) {
               WorkspaceStateKey.last_active,
               new Date()
             );
+            updateStatus(status); //update status immediately
           }
         }
       } else {

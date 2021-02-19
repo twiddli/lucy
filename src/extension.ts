@@ -3,7 +3,13 @@
 import * as vscode from "vscode";
 import { WorkspaceStateKey, WorkspaceStateValue } from "./types";
 import { registerReminder } from "./reminder";
-import { getConfig, getMementoValue, isNewCodingSession, say } from "./utils";
+import {
+  getConfig,
+  getMementoValue,
+  isNewCodingSession,
+  say,
+  showInformationMessage,
+} from "./utils";
 import { event, stateListeners } from "./event";
 import { setupStatusbarItem } from "./statusbar";
 
@@ -58,7 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
   // your extension is activated the very first time the command is executed
   setup(context);
 
-  vscode.window.showInformationMessage(say("{{ welcome }}"));
+  showInformationMessage(say("{{ welcome }}"));
 }
 
 // this method is called when your extension is deactivated

@@ -35,18 +35,19 @@ function statusState() {
 
   const sep = "$(kebab-vertical)";
   const remindersCount = event.reminders.filter((r) => !r.cleared).length;
-  let text = `| Lucy ${sep} $(loading~spin) ${hrsDiff}h ${minsDiff}m ${sep}`;
+  let text = `${sep} Lucy ${sep} $(loading~spin) ${hrsDiff}h ${minsDiff}m ${sep}`;
   if (remindersCount === 0) {
-    text += ` No tasks |`;
+    text += ` No tasks ${sep}`;
   } else {
     const firstReminder = event.reminders[0];
     text += ` Tasks: ${remindersCount} ${sep} Task: ${firstReminder?.text.substr(
       0,
       STATUSBAR_REMINDER_LENGTH
-    )} |`;
+    )} ${sep}`;
   }
 
-  const tooltip = "Lucy keeps track of your session time and tasks, Master! The first one on your list is always displayed here.";
+  const tooltip =
+    "Lucy keeps track of your session time and tasks, Master! The first one on your list is always displayed here.";
 
   return {
     enabled,

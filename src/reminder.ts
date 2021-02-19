@@ -191,15 +191,10 @@ function showReminder(reminder: Reminder) {
     ...[!reminder.cleared ? "Clear" : ""].filter(Boolean)
   ).then((s) => {
     if (s === "Clear") {
+      clearReminder(reminder);
     }
     return s;
   });
-
-  const recent = event.reminders.filter((r) => !r.cleared).slice(0, 3);
-  showInformationMessage(
-    `Master, I was told to remind you of these tasks ―― ` +
-      recent.map((r) => r.text).join(" ― ")
-  );
 }
 
 function setupEvents(context: vscode.ExtensionContext) {

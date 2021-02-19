@@ -32,16 +32,18 @@ function statusState() {
   }`;
   const minsDiff = Math.floor(timeDiff / 1000 / 60);
   const hrsDiff = Math.floor(minsDiff / 60);
-  
+
   const sep = "$(kebab-vertical)";
   const remindersCount = event.reminders.filter((r) => !r.cleared).length;
-  let text = `| Lucy ${sep} $(loading~spin) Current session: ${hrsDiff}h ${minsDiff}m ${sep}`;
-  if (remindersCount == 0) {
-    text += ` No reminders |`;
-  }
-  else {
+  let text = `| Lucy ${sep} $(loading~spin) ${hrsDiff}h ${minsDiff}m ${sep}`;
+  if (remindersCount === 0) {
+    text += ` No tasks |`;
+  } else {
     const firstReminder = event.reminders[0];
-    text += ` Reminders: ${remindersCount} ${sep} First reminder: ${firstReminder?.text.substr(0, STATUSBAR_REMINDER_LENGTH)} |`;
+    text += ` Tasks: ${remindersCount} ${sep} Task: ${firstReminder?.text.substr(
+      0,
+      STATUSBAR_REMINDER_LENGTH
+    )} |`;
   }
 
   const tooltip = "Lucy keeps track of your tasks, Master!";
@@ -99,6 +101,6 @@ export function setupStatusbarItem(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(status);
   updateStatus(status);
-  
+
   timeoutID = setInterval(updateStatusInterval, STATUSBAR_UPDATE_INTERVAL);
 }

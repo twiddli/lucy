@@ -11,11 +11,21 @@ import { event } from "./event";
 import Sentencer from "./sentencer";
 
 const sentencer = new Sentencer({
+  encouragement: function () {
+    const l = [
+      "you can do it",
+      "I believe in you master",
+      "you're almost there",
+      "keep up the good work master",
+    ];
+    console.log(this);
+    return l[Math.floor(Math.random() * l.length)];
+  },
   compliment: function () {
     const l = [
+      "way to go master",
       "good job master",
       "excellent work as always master",
-      "keep up the good work master",
     ];
     console.log(this);
     return l[Math.floor(Math.random() * l.length)];
@@ -118,6 +128,16 @@ export function getConfig(): typeof event.config {
 
 export function formatTime(d: Parameters<typeof format>[0]) {
   return format(d, "en_US");
+}
+
+export function showInformationMessage(message: string, ...items: string[]) {
+  return vscode.window
+    .showInformationMessage(message, ...[...items, "Hide"])
+    .then((s) => {
+      if (s === "Hide") {
+      }
+      return s;
+    });
 }
 
 export default {};

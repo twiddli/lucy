@@ -3,8 +3,14 @@
 import * as vscode from "vscode";
 import { WorkspaceStateKey, WorkspaceStateValue } from "./types";
 import { registerReminder } from "./reminder";
-import { getConfig, getMementoValue, isNewCodingSession, say } from "./utils";
-import { event, stateListeners } from "./event";
+import {
+  getConfig,
+  getMementoValue,
+  isNewCodingSession,
+  say,
+  showInformationMessage,
+} from "./utils";
+import { event, stateListeners, subscribe } from "./event";
 import { setupStatusbarItem, updateStatus, status } from "./statusbar";
 
 function setupEvents(context: vscode.ExtensionContext) {
@@ -38,6 +44,12 @@ function setupEvents(context: vscode.ExtensionContext) {
       }
     })
   );
+
+  subscribe("sessionActive", (value) => {
+    if (value) {
+      showInformationMessage(`Master, a new coding session has begun!`);
+    }
+  });
 }
 
 function setup(context: vscode.ExtensionContext) {
@@ -59,7 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
   // your extension is activated the very first time the command is executed
   setup(context);
 
-  vscode.window.showInformationMessage(say("{{ welcome }}"));
+  showInformationMessage(say("{{ welcome }}"));
 }
 
 // this method is called when your extension is deactivated

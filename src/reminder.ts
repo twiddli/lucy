@@ -8,9 +8,10 @@ import {
   updateArrayItem,
   say,
   formatTime,
+  showInformationMessage,
 } from "./utils";
 import { event, subscribe } from "./event";
-import { Reminder, WorkspaceStateKey } from "./types";
+import { PartialExcept, Reminder, WorkspaceStateKey } from "./types";
 
 let reminderTreeProvider: ReminderTreeProvider;
 
@@ -58,8 +59,8 @@ class ReminderTreeItem extends vscode.TreeItem {
     const time = formatTime(reminder.added);
 
     this.id = reminder.id;
-    this.description = `${time} | Cleared: ${reminder.cleared}`;
-    this.tooltip = `${reminder.text} | ${this.description}`;
+    this.description = `${time} ― Cleared: ${reminder.cleared}`;
+    this.tooltip = `${reminder.text}\n― ${this.description}`;
     this.contextValue = "reminderItem";
     if (reminder.cleared) {
       this.contextValue += " cleared";
@@ -75,6 +76,12 @@ class ReminderTreeItem extends vscode.TreeItem {
         light: getPath("media/circle-large-outline_l.svg"),
       };
     }
+
+    this.command = {
+      command: "lucy.reminderShow",
+      title: "Show reminder",
+      arguments: [this.id],
+    };
   }
 }
 
@@ -95,7 +102,7 @@ function createReminder(text: string) {
   event.reminders = reminders;
   event.lastReminder = reminder;
 
-  vscode.window.showInformationMessage(
+  showInformationMessage(
     `Master, on your next session I will remind you to ${uncapitalize(text)!}`
   );
 }
@@ -112,7 +119,7 @@ function sortReminders(reminders: Reminder[]) {
   });
 }
 
-function clearReminder(reminder: Reminder) {
+function clearReminder(reminder: PartialExcept<Reminder, "id">) {
   event.reminders = sortReminders(
     updateArrayItem(
       {
@@ -125,12 +132,29 @@ function clearReminder(reminder: Reminder) {
     )
   );
 
-  vscode.window.showInformationMessage(
+  showInformationMessage(
     say("{{ compliment_c }}! You have just cleared a reminder")
   );
 }
 
-function unclearReminder(reminder: Reminder) {
+function clearAllReminders() {
+  event.reminders = sortReminders(
+    event.reminders.map((r) => ({
+      ...r,
+      ...{
+        cleared: true,
+        clearDate: r.cleared ? r.clearDate : new Date(),
+        active: false,
+      },
+    }))
+  );
+
+  showInformationMessage(
+    say("All reminders have been cleared, {{ compliment }}!")
+  );
+}
+
+function unclearReminder(reminder: PartialExcept<Reminder, "id">) {
   event.reminders = sortReminders(
     updateArrayItem(
       {
@@ -143,19 +167,49 @@ function unclearReminder(reminder: Reminder) {
   );
 }
 
-function onRemindCommand(reminder: string | undefined) {
-  if (!reminder) {
-    return;
+function deleteReminder(reminder: PartialExcept<Reminder, "id">) {
+  const idx = event.reminders.findIndex((r) => r.id === reminder.id);
+  if (idx > -1) {
+    const r = [...event.reminders];
+    r.splice(idx, 1);
+    event.reminders = r;
   }
+}
 
-  createReminder(reminder);
+function showReminder(reminder: Reminder) {
+  showInformationMessage(
+    (reminder.cleared
+      ? "Master, I already reminded you of: "
+      : "Master, remember to: ") +
+      `\n${uncapitalize(reminder.text)}` +
+      ` ―― ` +
+      (reminder.active ? `\nCurrently active ―` : "") +
+      (reminder.cleared
+        ? ` Cleared ${formatTime(reminder.clearDate as Date)} ―`
+        : "") +
+      ` Added ${formatTime(reminder.added)}`,
+    ...[!reminder.cleared ? "Clear" : ""].filter(Boolean)
+  ).then((s) => {
+    if (s === "Clear") {
+    }
+    return s;
+  });
+
+  const recent = event.reminders.filter((r) => !r.cleared).slice(0, 3);
+  showInformationMessage(
+    `Master, I was told to remind you of these tasks ―― ` +
+      recent.map((r) => r.text).join(" ― ")
+  );
 }
 
 function setupEvents(context: vscode.ExtensionContext) {
   subscribe("sessionActive", (value) => {
     if (value) {
-      vscode.window.showInformationMessage(
-        `Master, a new coding session has begun!`
+      // get most recent uncleared reminders
+      const recent = event.reminders.filter((r) => !r.cleared).slice(0, 3);
+      showInformationMessage(
+        `Master, I was told to remind you of these tasks ―― ` +
+          recent.map((r) => r.text).join(" ― ")
       );
     }
   });
@@ -178,7 +232,13 @@ function registerCommands(context: vscode.ExtensionContext) {
           placeHolder: `Lucy please remind me to...`,
           prompt: `Ask lucy to remind you something for your next coding session 🔔`,
         })
-        .then(onRemindCommand);
+        .then((reminder) => {
+          if (!reminder) {
+            return;
+          }
+
+          createReminder(reminder);
+        });
     })
   );
 
@@ -192,6 +252,35 @@ function registerCommands(context: vscode.ExtensionContext) {
           } else {
             unclearReminder(reminder.reminder);
           }
+        }
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "lucy.reminderDelete",
+      (reminder: ReminderTreeItem) => {
+        if (reminder) {
+          deleteReminder(reminder.reminder);
+        }
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("lucy.reminderClearAll", () => {
+      clearAllReminders();
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "lucy.reminderShow",
+      (reminderID: string) => {
+        if (reminderID) {
+          const reminder = event.reminders.find((r) => r.id === reminderID);
+          if (reminder) showReminder(reminder);
         }
       }
     )

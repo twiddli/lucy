@@ -14,6 +14,7 @@ This extension contributes the following settings:
 ### 1.0.1
 
 - Detect coding session on activation
+- Shorten task text on statusbar
 
 ### 1.0.0
 

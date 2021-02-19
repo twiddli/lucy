@@ -2,7 +2,12 @@
   "name": "lucy",
   "displayName": "Lucy",
   "description": "A general purpose helper",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "publisher": "Twiddly",
+  "repository": {
+    "url": "https://github.com/twiddli/lucy"
+  },
+  "license": "MIT",
   "engines": {
     "vscode": "^1.53.0"
   },
@@ -21,7 +26,7 @@
           "type": "number",
           "scope": "application",
           "default": 180,
-          "description": "Minimum window de-focus duration before new coding session (minutes)"
+          "description": "Minimum window duration in minutes after inactvity before a new coding session can begin"
         }
       }
     },

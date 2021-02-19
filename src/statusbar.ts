@@ -44,7 +44,7 @@ function statusState() {
     text += ` Reminders: ${remindersCount} ${sep} First reminder: ${firstReminder?.text.substr(0, STATUSBAR_REMINDER_LENGTH)} |`;
   }
 
-  const tooltip = "Lucy keeps track of your tasks, Master!";
+  const tooltip = "Lucy keeps track of your session time and tasks, Master! The first one on your list is always displayed here.";
 
   return {
     enabled,

@@ -104,6 +104,10 @@
           "command": "lucy.reminderClear",
           "when": "view == lucy.reminder && viewItem =~ /reminderItem/",
           "group": "inline"
+        },
+        {
+          "command": "lucy.reminderDelete",
+          "when": "view == lucy.reminder && viewItem =~ /reminderItem/"
         }
       ]
     }

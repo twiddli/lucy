@@ -11,7 +11,7 @@ import {
   showInformationMessage,
 } from "./utils";
 import { event, subscribe } from "./event";
-import { Reminder, WorkspaceStateKey } from "./types";
+import { PartialExcept, Reminder, WorkspaceStateKey } from "./types";
 
 let reminderTreeProvider: ReminderTreeProvider;
 
@@ -119,7 +119,7 @@ function sortReminders(reminders: Reminder[]) {
   });
 }
 
-function clearReminder(reminder: Reminder) {
+function clearReminder(reminder: PartialExcept<Reminder, "id">) {
   event.reminders = sortReminders(
     updateArrayItem(
       {
@@ -154,7 +154,7 @@ function clearAllReminders() {
   );
 }
 
-function unclearReminder(reminder: Reminder) {
+function unclearReminder(reminder: PartialExcept<Reminder, "id">) {
   event.reminders = sortReminders(
     updateArrayItem(
       {
@@ -167,23 +167,50 @@ function unclearReminder(reminder: Reminder) {
   );
 }
 
+function deleteReminder(reminder: PartialExcept<Reminder, "id">) {
+  const idx = event.reminders.findIndex((r) => r.id === reminder.id);
+  if (idx > -1) {
+    const r = [...event.reminders];
+    r.splice(idx, 1);
+    event.reminders = r;
+  }
+}
+
 function showReminder(reminder: Reminder) {
   showInformationMessage(
-    "Here's your reminder, master:" +
-      `\n${reminder.text}` +
+    (reminder.cleared
+      ? "Master, I already reminded you of: "
+      : "Master, remember to: ") +
+      `\n${uncapitalize(reminder.text)}` +
       ` ―― ` +
       (reminder.active ? `\nCurrently active ―` : "") +
       (reminder.cleared
         ? ` Cleared ${formatTime(reminder.clearDate as Date)} ―`
         : "") +
-      ` Added ${formatTime(reminder.added)}`
+      ` Added ${formatTime(reminder.added)}`,
+    ...[!reminder.cleared ? "Clear" : ""].filter(Boolean)
+  ).then((s) => {
+    if (s === "Clear") {
+    }
+    return s;
+  });
+
+  const recent = event.reminders.filter((r) => !r.cleared).slice(0, 3);
+  showInformationMessage(
+    `Master, I was told to remind you of these tasks ―― ` +
+      recent.map((r) => r.text).join(" ― ")
   );
 }
 
 function setupEvents(context: vscode.ExtensionContext) {
   subscribe("sessionActive", (value) => {
     if (value) {
-      showInformationMessage(`Master, a new coding session has begun!`);
+      // get most recent uncleared reminders
+      const recent = event.reminders.filter((r) => !r.cleared).slice(0, 3);
+      showInformationMessage(
+        `Master, I was told to remind you of these tasks ―― ` +
+          recent.map((r) => r.text).join(" ― ")
+      );
     }
   });
 
@@ -225,6 +252,17 @@ function registerCommands(context: vscode.ExtensionContext) {
           } else {
             unclearReminder(reminder.reminder);
           }
+        }
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "lucy.reminderDelete",
+      (reminder: ReminderTreeItem) => {
+        if (reminder) {
+          deleteReminder(reminder.reminder);
         }
       }
     )

@@ -10,7 +10,7 @@ import {
   say,
   showInformationMessage,
 } from "./utils";
-import { event, stateListeners } from "./event";
+import { event, stateListeners, subscribe } from "./event";
 import { setupStatusbarItem } from "./statusbar";
 
 function setupEvents(context: vscode.ExtensionContext) {
@@ -43,6 +43,12 @@ function setupEvents(context: vscode.ExtensionContext) {
       }
     })
   );
+
+  subscribe("sessionActive", (value) => {
+    if (value) {
+      showInformationMessage(`Master, a new coding session has begun!`);
+    }
+  });
 }
 
 function setup(context: vscode.ExtensionContext) {

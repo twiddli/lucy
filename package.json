@@ -52,7 +52,7 @@
       },
       {
         "command": "lucy.reminderDelete",
-        "title": "Delete reminder",
+        "title": "Lucy: Delete reminder",
         "icon": {
           "dark": "media/trash.svg",
           "light": "media/trash_l.svg"
@@ -60,7 +60,7 @@
       },
       {
         "command": "lucy.reminderClear",
-        "title": "Clear reminder",
+        "title": "Lucy: Clear reminder",
         "icon": {
           "dark": "media/check.svg",
           "light": "media/check_l.svg"
@@ -68,7 +68,7 @@
       },
       {
         "command": "lucy.reminderClearAll",
-        "title": "Clear all reminders",
+        "title": "Lucy: Clear all reminders",
         "icon": {
           "dark": "media/check-all.svg",
           "light": "media/check-all_l.svg"
@@ -76,7 +76,7 @@
       },
       {
         "command": "lucy.reminderShow",
-        "title": "Show reminder"
+        "title": "Lucy: Show reminder"
       }
     ],
     "views": {

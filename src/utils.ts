@@ -77,6 +77,11 @@ export function getMementoValue<
     if (key === WorkspaceStateKey.last_active)
       value = new Date(value as string);
 
+    if (key === WorkspaceStateKey.last_defocus)
+      value = new Date(value as string);
+
+    if (key === WorkspaceStateKey.last_focus) value = new Date(value as string);
+
     if (key === WorkspaceStateKey.reminders)
       value = (value as Reminder[]).map((r) => {
         r.added = new Date(r.added);

@@ -20,9 +20,15 @@ function detectCodingSession(windowFocused: boolean) {
       new Date()
     );
 
-    let last_defocus = event.context?.workspaceState.get<Date>(
-      WorkspaceStateKey.last_defocus
-    );
+    let last_defocus: Date | undefined;
+
+    if (event.context) {
+      last_defocus = getMementoValue(
+        event.context?.workspaceState,
+        WorkspaceStateKey.last_defocus
+      );
+    }
+
     if (last_defocus) {
       if (isNewCodingSession(last_defocus)) {
         event.sessionActive = true;

@@ -35,6 +35,22 @@
         }
       },
       {
+        "command": "lucy.remindFile",
+        "title": "Lucy: Remind me something about this file...",
+        "icon": {
+          "dark": "media/add.svg",
+          "light": "media/add_l.svg"
+        }
+      },
+      {
+        "command": "lucy.remindInFile",
+        "title": "Lucy: Remind me something about this line in this file...",
+        "icon": {
+          "dark": "media/add.svg",
+          "light": "media/add_l.svg"
+        }
+      },
+      {
         "command": "lucy.reminderDelete",
         "title": "Delete reminder",
         "icon": {

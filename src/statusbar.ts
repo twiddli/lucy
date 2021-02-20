@@ -21,7 +21,6 @@ function statusState() {
 
   let timeDiff = 0;
   if (last_active) {
-    //console.log("last active =", last_active, " type=", typeof last_active);
     timeDiff = new Date().getTime() - last_active.getTime();
   }
 
@@ -30,8 +29,8 @@ function statusState() {
   sessionLength = `${sessionLength.split(" ")[0]} ${
     sessionLength.split(" ")[1]
   }`;
-  const minsDiff = Math.floor(timeDiff / 1000 / 60);
-  const hrsDiff = Math.floor(minsDiff / 60);
+  const minsDiff = Math.floor(timeDiff / 1000 / 60) % 60;
+  const hrsDiff = Math.floor(timeDiff / 1000 / 60 / 60);
 
   const sep = "$(kebab-vertical)";
   const remindersCount = event.reminders.filter((r) => !r.cleared).length;

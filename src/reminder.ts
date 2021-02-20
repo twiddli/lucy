@@ -77,15 +77,35 @@ class ReminderTreeItem extends vscode.TreeItem {
       };
     }
 
-    this.command = {
-      command: "lucy.reminderShow",
-      title: "Show reminder",
-      arguments: [this.id],
-    };
+    //open file if associated with reminder
+    if (reminder.filePath) {
+      //open at specified line, or at the top of file if none
+      let selection = new vscode.Selection(
+        new vscode.Position(reminder.lineNumber??0, 0),
+        new vscode.Position(reminder.lineNumber??0, 0));
+        
+      this.command = {
+        command : "vscode.open",
+        title: "Show reminder",
+        arguments: [
+          vscode.Uri.parse("file:///" + reminder.filePath),
+          {
+            preview: false, //open in new editor tab
+            selection: selection
+          }
+        ]
+      }
+    } else {
+      this.command = {
+        command: "lucy.reminderShow",
+        title: "Show reminder",
+        arguments: [this.id],
+      };
+    }
   }
 }
 
-function createReminder(text: string) {
+function createReminder(text: string) : Reminder {
   const added = new Date();
 
   const reminder: Reminder = {
@@ -105,6 +125,26 @@ function createReminder(text: string) {
   showInformationMessage(
     `Master, on your next session I will remind you to ${uncapitalize(text)!}`
   );
+
+  return reminder;
+}
+
+function createFileReminder(text: string) {
+  let editor = vscode.window.activeTextEditor;
+  if (editor) {
+    let reminder = createReminder(text);
+    reminder.filePath = editor.document.fileName.replace(/\\/g,"/");
+  }
+}
+
+function createInFileReminder(text: string) {
+  let editor = vscode.window.activeTextEditor;
+  //only process adding reminders in files if there are any files open
+  if (editor) {
+    let reminder = createReminder(text);
+    reminder.filePath = editor.document.fileName.replace(/\\/g,"/");
+    reminder.lineNumber = editor.selection.active.line;
+  }
 }
 
 // Sort by active, not cleared, cleared date and then date
@@ -202,6 +242,17 @@ function showReminder(reminder: Reminder) {
   );
 }
 
+function onRemindFileCommand(reminder: string | undefined) {
+  if (reminder)
+    createFileReminder(reminder);
+}
+
+function onRemindInFileCommand(reminder: string | undefined) {
+  if (reminder) {
+    createInFileReminder(reminder);
+  }
+}
+
 function setupEvents(context: vscode.ExtensionContext) {
   subscribe("sessionActive", (value) => {
     if (value) {
@@ -230,7 +281,7 @@ function registerCommands(context: vscode.ExtensionContext) {
         .showInputBox({
           ignoreFocusOut: true,
           placeHolder: `Lucy please remind me to...`,
-          prompt: `Ask lucy to remind you something for your next coding session 🔔`,
+          prompt: `Ask Lucy to remind you something for your next coding session 🔔`,
         })
         .then((reminder) => {
           if (!reminder) {
@@ -263,7 +314,16 @@ function registerCommands(context: vscode.ExtensionContext) {
       (reminder: ReminderTreeItem) => {
         if (reminder) {
           deleteReminder(reminder.reminder);
-        }
+        }))
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "lucy.remindFile", () => {
+        vscode.window.showInputBox({
+          ignoreFocusOut: true,
+          placeHolder: `Lucy remind me that in this file I need to...`,
+          prompt: `Ask Lucy to remind you to do something in the current file for your next coding session 🔔`,
+        }).then(onRemindFileCommand);
       }
     )
   );
@@ -281,7 +341,17 @@ function registerCommands(context: vscode.ExtensionContext) {
         if (reminderID) {
           const reminder = event.reminders.find((r) => r.id === reminderID);
           if (reminder) showReminder(reminder);
-        }
+        })
+  )
+  
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "lucy.remindInFile", () => {
+        vscode.window.showInputBox({
+          ignoreFocusOut: true,
+          placeHolder: `Lucy remind me that at this line, in this file I need to...`,
+          prompt: `Ask Lucy to remind you to do something in the current file, at the current line for your next coding session 🔔`,
+        }).then(onRemindInFileCommand);
       }
     )
   );

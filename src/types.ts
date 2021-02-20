@@ -12,6 +12,8 @@ export interface Reminder {
   active: boolean;
   cleared: boolean;
   clearDate: Date | null;
+  filePath?: string;
+  lineNumber?: number;
 }
 
 export type WorkspaceStateValue = {

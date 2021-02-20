@@ -39,10 +39,7 @@ function statusState() {
     text += ` No tasks ${sep}`;
   } else {
     const firstReminder = event.reminders[0];
-    text += ` Tasks: ${remindersCount} ${sep} Task: ${firstReminder?.text.substr(
-      0,
-      STATUSBAR_REMINDER_LENGTH
-    )} ${sep}`;
+    text += ` Tasks: ${remindersCount} ${sep}`;
   }
 
   const tooltip =

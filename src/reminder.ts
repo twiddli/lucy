@@ -75,10 +75,29 @@ class ReminderTreeItem extends vscode.TreeItem {
         light: getPath("media/circle-large-outline_l.svg"),
       };
     }
+    //open file if associated with reminder
+    if (reminder.filePath) {
+      //open at specified line, or at the top of file if none
+      let selection = new vscode.Selection(
+        new vscode.Position(reminder.lineNumber??0, 0),
+        new vscode.Position(reminder.lineNumber??0, 0));
+        
+      this.command = {
+        command : "vscode.open",
+        title: "Show reminder",
+        arguments: [
+          vscode.Uri.parse("file:///" + reminder.filePath),
+          {
+            preview: false, //open in new editor tab
+            selection: selection
+          }
+        ]
+      }
+    }
   }
 }
 
-function createReminder(text: string) {
+function createReminder(text: string) : Reminder {
   const added = new Date();
 
   const reminder: Reminder = {
@@ -94,10 +113,34 @@ function createReminder(text: string) {
 
   event.reminders = reminders;
   event.lastReminder = reminder;
-
-  vscode.window.showInformationMessage(
+  /*
+  if (vscode.window.activeTextEditor) {
+    vscode.window.activeTextEditor.selection = new vscode.Selection(new vscode.Position(0, 0), new vscode.Position(0, 0));
+    vscode.window.activeTextEditor.revealRange(new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0,0)));
+  }*/
+    vscode.window.showInformationMessage(
     `Master, on your next session I will remind you to ${uncapitalize(text)!}`
   );
+
+  return reminder;
+}
+
+function createFileReminder(text: string) {
+  let editor = vscode.window.activeTextEditor;
+  if (editor) {
+    let reminder = createReminder(text);
+    reminder.filePath = editor.document.fileName.replace(/\\/g,"/");
+  }
+}
+
+function createInFileReminder(text: string) {
+  let editor = vscode.window.activeTextEditor;
+  //only process adding reminders in files if there are any files open
+  if (editor) {
+    let reminder = createReminder(text);
+    reminder.filePath = editor.document.fileName.replace(/\\/g,"/");
+    reminder.lineNumber = editor.selection.active.line;
+  }
 }
 
 // Sort by active, not cleared, cleared date and then date
@@ -151,6 +194,17 @@ function onRemindCommand(reminder: string | undefined) {
   createReminder(reminder);
 }
 
+function onRemindFileCommand(reminder: string | undefined) {
+  if (reminder)
+    createFileReminder(reminder);
+}
+
+function onRemindInFileCommand(reminder: string | undefined) {
+  if (reminder) {
+    createInFileReminder(reminder);
+  }
+}
+
 function setupEvents(context: vscode.ExtensionContext) {
   subscribe("sessionActive", (value) => {
     if (value) {
@@ -176,7 +230,7 @@ function registerCommands(context: vscode.ExtensionContext) {
         .showInputBox({
           ignoreFocusOut: true,
           placeHolder: `Lucy please remind me to...`,
-          prompt: `Ask lucy to remind you something for your next coding session 🔔`,
+          prompt: `Ask Lucy to remind you something for your next coding session 🔔`,
         })
         .then(onRemindCommand);
     })
@@ -193,6 +247,30 @@ function registerCommands(context: vscode.ExtensionContext) {
             unclearReminder(reminder.reminder);
           }
         }
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "lucy.remindFile", () => {
+        vscode.window.showInputBox({
+          ignoreFocusOut: true,
+          placeHolder: `Lucy remind me that in this file I need to...`,
+          prompt: `Ask Lucy to remind you to do something in the current file for your next coding session 🔔`,
+        }).then(onRemindFileCommand);
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "lucy.remindInFile", () => {
+        vscode.window.showInputBox({
+          ignoreFocusOut: true,
+          placeHolder: `Lucy remind me that at this line, in this file I need to...`,
+          prompt: `Ask Lucy to remind you to do something in the current file, at the current line for your next coding session 🔔`,
+        }).then(onRemindInFileCommand);
       }
     )
   );

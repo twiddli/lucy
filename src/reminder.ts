@@ -81,20 +81,21 @@ class ReminderTreeItem extends vscode.TreeItem {
     if (reminder.filePath) {
       //open at specified line, or at the top of file if none
       let selection = new vscode.Selection(
-        new vscode.Position(reminder.lineNumber??0, 0),
-        new vscode.Position(reminder.lineNumber??0, 0));
-        
+        new vscode.Position(reminder.lineNumber ?? 0, 0),
+        new vscode.Position(reminder.lineNumber ?? 0, 0)
+      );
+
       this.command = {
-        command : "vscode.open",
+        command: "vscode.open",
         title: "Show reminder",
         arguments: [
           vscode.Uri.parse("file:///" + reminder.filePath),
           {
             preview: false, //open in new editor tab
-            selection: selection
-          }
-        ]
-      }
+            selection: selection,
+          },
+        ],
+      };
     } else {
       this.command = {
         command: "lucy.reminderShow",
@@ -105,7 +106,7 @@ class ReminderTreeItem extends vscode.TreeItem {
   }
 }
 
-function createReminder(text: string) : Reminder {
+function createReminder(text: string): Reminder {
   const added = new Date();
 
   const reminder: Reminder = {
@@ -133,7 +134,7 @@ function createFileReminder(text: string) {
   let editor = vscode.window.activeTextEditor;
   if (editor) {
     let reminder = createReminder(text);
-    reminder.filePath = editor.document.fileName.replace(/\\/g,"/");
+    reminder.filePath = editor.document.fileName.replace(/\\/g, "/");
   }
 }
 
@@ -142,7 +143,7 @@ function createInFileReminder(text: string) {
   //only process adding reminders in files if there are any files open
   if (editor) {
     let reminder = createReminder(text);
-    reminder.filePath = editor.document.fileName.replace(/\\/g,"/");
+    reminder.filePath = editor.document.fileName.replace(/\\/g, "/");
     reminder.lineNumber = editor.selection.active.line;
   }
 }
@@ -243,8 +244,7 @@ function showReminder(reminder: Reminder) {
 }
 
 function onRemindFileCommand(reminder: string | undefined) {
-  if (reminder)
-    createFileReminder(reminder);
+  if (reminder) createFileReminder(reminder);
 }
 
 function onRemindInFileCommand(reminder: string | undefined) {
@@ -314,18 +314,21 @@ function registerCommands(context: vscode.ExtensionContext) {
       (reminder: ReminderTreeItem) => {
         if (reminder) {
           deleteReminder(reminder.reminder);
-        }))
+        }
+      }
+    )
+  );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "lucy.remindFile", () => {
-        vscode.window.showInputBox({
+    vscode.commands.registerCommand("lucy.remindFile", () => {
+      vscode.window
+        .showInputBox({
           ignoreFocusOut: true,
           placeHolder: `Lucy remind me that in this file I need to...`,
           prompt: `Ask Lucy to remind you to do something in the current file for your next coding session 🔔`,
-        }).then(onRemindFileCommand);
-      }
-    )
+        })
+        .then(onRemindFileCommand);
+    })
   );
 
   context.subscriptions.push(
@@ -341,19 +344,21 @@ function registerCommands(context: vscode.ExtensionContext) {
         if (reminderID) {
           const reminder = event.reminders.find((r) => r.id === reminderID);
           if (reminder) showReminder(reminder);
-        })
-  )
-  
+        }
+      }
+    )
+  );
+
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "lucy.remindInFile", () => {
-        vscode.window.showInputBox({
+    vscode.commands.registerCommand("lucy.remindInFile", () => {
+      vscode.window
+        .showInputBox({
           ignoreFocusOut: true,
           placeHolder: `Lucy remind me that at this line, in this file I need to...`,
           prompt: `Ask Lucy to remind you to do something in the current file, at the current line for your next coding session 🔔`,
-        }).then(onRemindInFileCommand);
-      }
-    )
+        })
+        .then(onRemindInFileCommand);
+    })
   );
 }
 

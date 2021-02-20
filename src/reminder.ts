@@ -12,6 +12,7 @@ import {
 } from "./utils";
 import { event, subscribe } from "./event";
 import { PartialExcept, Reminder, WorkspaceStateKey } from "./types";
+import { start } from "repl";
 
 let reminderTreeProvider: ReminderTreeProvider;
 
@@ -84,7 +85,7 @@ class ReminderTreeItem extends vscode.TreeItem {
         new vscode.Position(reminder.lineNumber ?? 0, 0),
         new vscode.Position(reminder.lineNumber ?? 0, 0)
       );
-
+      
       this.command = {
         command: "vscode.open",
         title: "Show reminder",
@@ -266,7 +267,29 @@ function setupEvents(context: vscode.ExtensionContext) {
     }
 
     context.workspaceState.update(WorkspaceStateKey.reminders, value);
+  });  
+
+  vscode.workspace.onDidChangeTextDocument(fileChangeMonitor);
+}
+
+//calculates the change in line count of a document and updates all reminders below the line to reflect the change
+function fileChangeMonitor(e:vscode.TextDocumentChangeEvent) {
+  const endLine = e.contentChanges[0].range.end.line; 
+  const startLine = e.contentChanges[0].range.start.line;
+  const selectedLinesCount = endLine - startLine;
+  const newLinesCount = (e.contentChanges[0].text.match(/\n/g) || []).length;
+  const lineCountDiff = newLinesCount - selectedLinesCount; //how many newlines were inserted
+
+  event.reminders = event.reminders.map((reminder:Reminder) => {
+    
+    const r = {...reminder};
+    //only change line number if it exists and is below the start of newline insertion
+    if (r.filePath && r.lineNumber && r.lineNumber > startLine) {
+      r.lineNumber += lineCountDiff;
+    }
+    return r;
   });
+  
 }
 
 function registerCommands(context: vscode.ExtensionContext) {

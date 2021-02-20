@@ -13,43 +13,41 @@ import {
 import { event, stateListeners, subscribe } from "./event";
 import { setupStatusbarItem, updateStatus, status } from "./statusbar";
 
+function detectCodingSession(windowFocused: boolean) {
+  if (windowFocused) {
+    event.context?.workspaceState.update(
+      WorkspaceStateKey.last_focus,
+      new Date()
+    );
+
+    let last_defocus = event.context?.workspaceState.get<Date>(
+      WorkspaceStateKey.last_defocus
+    );
+    if (last_defocus) {
+      if (isNewCodingSession(last_defocus)) {
+        event.sessionActive = true;
+        event.context?.workspaceState.update(
+          WorkspaceStateKey.last_active,
+          new Date()
+        );
+        updateStatus(status); //update status immediately
+      }
+    }
+  } else {
+    //keep track of window de-focus date/time for session end tracking
+    event.context?.workspaceState.update(
+      WorkspaceStateKey.last_defocus,
+      new Date()
+    );
+  }
+}
+
 function setupEvents(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.onDidChangeWindowState((e) => {
-      if (e.focused) {
-        event.context?.workspaceState.update(
-          WorkspaceStateKey.last_focus,
-          new Date()
-        );
-
-        let last_defocus = event.context?.workspaceState.get<Date>(
-          WorkspaceStateKey.last_defocus
-        );
-        if (last_defocus) {
-          if (isNewCodingSession(last_defocus)) {
-            event.sessionActive = true;
-            event.context?.workspaceState.update(
-              WorkspaceStateKey.last_active,
-              new Date()
-            );
-            updateStatus(status); //update status immediately
-          }
-        }
-      } else {
-        //keep track of window de-focus date/time for session end tracking
-        event.context?.workspaceState.update(
-          WorkspaceStateKey.last_defocus,
-          new Date()
-        );
-      }
+      detectCodingSession(e.focused);
     })
   );
-
-  subscribe("sessionActive", (value) => {
-    if (value) {
-      showInformationMessage(`Master, a new coding session has begun!`);
-    }
-  });
 }
 
 function setup(context: vscode.ExtensionContext) {
@@ -72,6 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
   setup(context);
 
   showInformationMessage(say("{{ welcome }}"));
+  detectCodingSession(true);
 }
 
 // this method is called when your extension is deactivated

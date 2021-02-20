@@ -5,7 +5,7 @@ import { formatTime, getMementoValue } from "./utils";
 import { STATUSBAR_UPDATE_INTERVAL } from "./constants";
 
 export let status: vscode.StatusBarItem;
-const STATUSBAR_REMINDER_LENGTH = 144;
+const STATUSBAR_REMINDER_LENGTH = 20;
 
 function statusState() {
   const enabled = true;

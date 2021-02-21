@@ -130,7 +130,19 @@
           "when": "view == lucy.reminder && viewItem =~ /reminderItem/"
         }
       ]
-    }
+    },
+    "colors": [
+      {
+        "id": "lucy.reminderBackground",
+        "description": "Color for Lucy's in-file reminder's background.",
+        "defaults": {
+          "dark": "#7aea9425",
+          "light": "#1cae192b",
+          "highContrast": "#00776c"
+
+        }
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "yarn run package",

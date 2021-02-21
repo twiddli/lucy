@@ -18,7 +18,6 @@ const sentencer = new Sentencer({
       "you're almost there",
       "keep up the good work master",
     ];
-    console.log(this);
     return l[Math.floor(Math.random() * l.length)];
   },
   compliment: function () {
@@ -27,7 +26,6 @@ const sentencer = new Sentencer({
       "good job master",
       "excellent work as always master",
     ];
-    console.log(this);
     return l[Math.floor(Math.random() * l.length)];
   },
   compliment_c: function () {
@@ -39,7 +37,6 @@ const sentencer = new Sentencer({
       "Master, work hard!",
       "Ready for some work, master?",
     ];
-    console.log(this);
     return l[Math.floor(Math.random() * l.length)];
   },
 });

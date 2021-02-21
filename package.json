@@ -24,7 +24,7 @@
         "lucy.sessionInterval": {
           "type": "number",
           "scope": "application",
-          "default": 180,
+          "default": 100,
           "description": "Minimum window duration in minutes after inactvity before a new coding session can begin"
         }
       }

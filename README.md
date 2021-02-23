@@ -11,6 +11,10 @@ This extension contributes the following settings:
 
 - `lucy.sessionInterval`: Minimum window duration in minutes after inactvity before a new coding session can begin
 
+### 1.1.0
+
+-
+
 ### 1.0.1
 
 - Detect coding session on activation

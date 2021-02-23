@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from "fs";
 import { join } from "path";
 import * as vscode from "vscode";
+import { say, showInformationMessage } from "./utils";
 
 function setupEvents(context: vscode.ExtensionContext) {}
 function registerCommands(context: vscode.ExtensionContext) {}
@@ -32,6 +33,34 @@ function reopenInWorkspace() {
     const wfiles = getWorkspaceFiles();
     // if only one file, open
     if (wfiles.length === 1) {
+      console.log(`found workspace file ${wfiles[0]}`);
+
+      const tout = 3500;
+      const tID = setTimeout(
+        () =>
+          vscode.commands.executeCommand(
+            "vscode.openFolder",
+            vscode.Uri.file(wfiles[0]),
+            {
+              noRecentEntry: true,
+              forceNewWindow: false,
+            }
+          ),
+        tout
+      );
+
+      showInformationMessage(
+        say(
+          `Master! I found a workspace and I will automatically open it in 3 seconds. ― ${wfiles[0]}`
+        ),
+        "Cancel"
+      ).then((v) => {
+        if (v === "Cancel") {
+          clearTimeout(tID);
+        }
+        return v;
+      });
+
       vscode.commands
         .executeCommand("vscode.openFolder", wfiles[0], {
           noRecentEntry: true,

@@ -15,9 +15,14 @@ import { PartialExcept, Reminder, WorkspaceStateKey } from "./types";
 import { start } from "repl";
 import { open } from "fs";
 
+interface ReminderState {
+  lineNumber: number;
+}
+
 let reminderTreeProvider: ReminderTreeProvider;
 const bgColor = new vscode.ThemeColor("lucy.reminderBackground");
 const decoration = vscode.window.createTextEditorDecorationType({backgroundColor:bgColor});
+const tempReminderState: {[id:string]: ReminderState} = {};
 
 export class ReminderTreeProvider
   implements vscode.TreeDataProvider<ReminderTreeItem> {
@@ -83,10 +88,11 @@ class ReminderTreeItem extends vscode.TreeItem {
 
     //open file if associated with reminder
     if (reminder.filePath) {
+      const lineNumber = reminder.lineNumber ?? (tempReminderState[reminder.id]?.lineNumber ?? 0);
       //open at specified line, or at the top of file if none
       let selection = new vscode.Selection(
-        new vscode.Position(reminder.lineNumber ?? 0, 0),
-        new vscode.Position(reminder.lineNumber ?? 0, 0)
+        new vscode.Position(lineNumber, 0),
+        new vscode.Position(lineNumber, 0)
       );
       
       
@@ -149,7 +155,7 @@ function createInFileReminder(text: string) {
   if (editor) {
     let reminder = createReminder(text);
     reminder.filePath = editor.document.fileName.replace(/\\/g, "/");
-    reminder.lineNumber = editor.selection.active.line;
+    tempReminderState[reminder.id] = { lineNumber : editor.selection.active.line };
     highlightRemindersInFile(reminder.filePath);
   }
 }
@@ -276,6 +282,7 @@ function setupEvents(context: vscode.ExtensionContext) {
 
   vscode.workspace.onDidOpenTextDocument(fileOpenHandler);
   vscode.workspace.onDidChangeTextDocument(fileChangeMonitor);
+  vscode.workspace.onDidSaveTextDocument(fileSaveHandler);
 }
 
 function highlightRemindersInFile(filePath: string) {
@@ -288,10 +295,12 @@ function highlightRemindersInFile(filePath: string) {
       //in the minds of VSCode developers, appending nonexistent extensions to file paths on file open events is a sound idea
       //https://github.com/microsoft/vscode/issues/22561
       && (reminder.filePath === filePath || reminder.filePath + '.git' === filePath) 
-      && reminder.lineNumber) {
+      && (tempReminderState[reminder.id]?.lineNumber || reminder.lineNumber)) { 
+        //if there is a temporary state, use that, otherwise, read from the reminder's permanent state
+        const lineNumber = tempReminderState[reminder.id]?.lineNumber ?? reminder.lineNumber;
       ranges.push(new vscode.Range(
-        new vscode.Position(reminder.lineNumber, 0),
-        new vscode.Position(reminder.lineNumber + 1, 0)));
+        new vscode.Position(lineNumber, 0),
+        new vscode.Position(lineNumber + 1, 0)));
     }
   });
 
@@ -309,51 +318,20 @@ function fileOpenHandler(e: vscode.TextDocument) {
   const openedFilePath = e.fileName.replace(/\\/g, "/");
   highlightRemindersInFile(openedFilePath);
   
-  //console.log('opened file path: ', openedFilePath);
-  /*
-  reminders.forEach((reminder) => {
-    //console.log('reminder: ', reminder.text, 'reminder filepath: ', reminder.filePath);
-    if (reminder.filePath 
-      //in the minds of VSCode developers, appending nonexistent extensions to file paths on file open events is a sound idea
-      //
-      && (reminder.filePath === openedFilePath || reminder.filePath + '.git' === openedFilePath) 
-      && reminder.lineNumber) {
-      ranges.push(new vscode.Range(
-        new vscode.Position(reminder.lineNumber, 0),
-        new vscode.Position(reminder.lineNumber + 1, 0)));
+
+}
+
+function fileSaveHandler(e:vscode.TextDocument) {
+  const savedFilePath = e.fileName.replace(/\\/g, "/");
+  //go through all temporary state changes and if they apply to the reminder, commit them
+  event.reminders = event.reminders.map((reminder) => {
+    if (reminder.filePath && reminder.filePath === savedFilePath) {
+      return Object.assign({}, reminder, tempReminderState[reminder.id] ?? {});
+    }
+    else {
+      return reminder;
     }
   });
-
-  if (ranges.length > 0) {
-    //console.log('setting highlights in ', openedFilePath, ' at ranges: ', ranges);
-    vscode.window.activeTextEditor?.setDecorations(decoration, ranges);
-  }
-  */
-  /*
-  vscode.window.activeTextEditor?.setDecorations(decoration, [new vscode.Range(
-    new vscode.Position(6, 0),
-    new vscode.Position(7, 0))]);*/
-    /*
-  if (ranges.length > 0) {
-    console.log('range is the same: ', ranges[0].end.line === new vscode.Position(7, 0).line, ranges[0].start.line ===
-      new vscode.Position(6, 0).line);
-      vscode.window.activeTextEditor?.setDecorations(decoration, ranges);
-      vscode.window.activeTextEditor?.setDecorations(decoration, [new vscode.Range(
-        new vscode.Position(6, 0),
-        new vscode.Position(7, 0))]);
-  }
-  console.log('manual ranges: ', [new vscode.Range(
-    new vscode.Position(6, 0),
-    new vscode.Position(7, 0))]);*//*
-    vscode.window.activeTextEditor?.setDecorations(decoration, [new vscode.Range(
-      new vscode.Position(6, 0),
-      new vscode.Position(7, 0))]);  */
- /*
- ranges.push(new vscode.Range(
-  new vscode.Position(6, 0),
-  new vscode.Position(7, 0)));
-  */
-
 }
 
 //calculates the change in line count of a document and updates all reminders below the line to reflect the change
@@ -363,15 +341,14 @@ function fileChangeMonitor(e:vscode.TextDocumentChangeEvent) {
   const selectedLinesCount = endLine - startLine;
   const newLinesCount = (e.contentChanges[0].text.match(/\n/g) || []).length;
   const lineCountDiff = newLinesCount - selectedLinesCount; //how many newlines were inserted
-  console.log('file change monitor firing for file : ', e.document.fileName);
   const openedFilePath = e.document.fileName.replace(/\\/g, "/");
   event.reminders = event.reminders.map((reminder:Reminder) => {
     
     const r = {...reminder};
     //only change line number if it exists and is below the start of newline insertion
-    if (r.filePath && r.lineNumber && r.lineNumber > startLine && openedFilePath === r.filePath) {
-      console.log('moving line by ', lineCountDiff);
-      r.lineNumber += lineCountDiff;
+    if (r.filePath && tempReminderState[r.id].lineNumber && tempReminderState[r.id].lineNumber > startLine && openedFilePath === r.filePath) {
+      tempReminderState[r.id].lineNumber += lineCountDiff;
+      
     }
     return r;
   });

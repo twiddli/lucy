@@ -16,7 +16,7 @@
   ],
   "activationEvents": [
     "onStartupFinished",
-    "workspaceContains:**/.code-workspace"
+    "workspaceContains:**/*.code-workspace"
   ],
   "main": "./dist/extension.js",
   "contributes": {

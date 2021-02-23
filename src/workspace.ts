@@ -11,13 +11,13 @@ function getWorkspaceFiles() {
     // check rootdir and .vscode folder
     // Note that the first entry corresponds to the value of rootPath.
     for (const p of [
-      vscode.workspace.workspaceFolders[0].uri.path,
-      join(vscode.workspace.workspaceFolders[0].uri.path, ".vscode"),
+      vscode.workspace.workspaceFolders[0].uri.fsPath,
+      join(vscode.workspace.workspaceFolders[0].uri.fsPath, ".vscode"),
     ]) {
       if (existsSync(p)) {
         readdirSync(p).forEach((v) => {
           if (v.endsWith(".code-workspace")) {
-            wfiles.push(v);
+            wfiles.push(join(p, v));
           }
         });
       }
@@ -32,10 +32,14 @@ function reopenInWorkspace() {
     const wfiles = getWorkspaceFiles();
     // if only one file, open
     if (wfiles.length === 1) {
-      vscode.commands.executeCommand("vscode.openFolder", wfiles[0], {
-        noRecentEntry: true,
-        forceNewWindow: false,
-      });
+      vscode.commands
+        .executeCommand("vscode.openFolder", wfiles[0], {
+          noRecentEntry: true,
+          forceNewWindow: false,
+        })
+        .then((r) => {
+          console.log("Automatically opening workspace");
+        });
     }
   }
 }

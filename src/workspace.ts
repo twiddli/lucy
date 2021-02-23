@@ -1,5 +1,5 @@
-import { existsSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync } from "fs";
+import { join } from "path";
 import * as vscode from "vscode";
 
 function setupEvents(context: vscode.ExtensionContext) {}

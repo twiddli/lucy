@@ -51,8 +51,17 @@ function detectCodingSession(windowFocused: boolean) {
 
 function setupEvents(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    vscode.window.onDidChangeWindowState((e) => {
-      detectCodingSession(e.focused);
+    vscode.window.onDidChangeWindowState((s) => {
+      const e = { ...s };
+      const T_OUT = 10000;
+
+      setTimeout(() => {
+        // sometimes the user will rocus accidentally, so we wait and check if it's still focused
+        if (e.focused && !vscode.window.state.focused) {
+          return;
+        }
+        detectCodingSession(e.focused);
+      }, T_OUT);
     })
   );
 }

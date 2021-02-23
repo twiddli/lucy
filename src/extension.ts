@@ -12,6 +12,7 @@ import {
 } from "./utils";
 import { event, stateListeners, subscribe } from "./event";
 import { setupStatusbarItem, updateStatus, status } from "./statusbar";
+import { registerWorkspace } from "./workspace";
 
 function detectCodingSession(windowFocused: boolean) {
   if (windowFocused) {
@@ -57,6 +58,7 @@ function setupEvents(context: vscode.ExtensionContext) {
 }
 
 function setup(context: vscode.ExtensionContext) {
+  registerWorkspace(context);
   registerReminder(context);
   setupStatusbarItem(context);
   setupEvents(context);

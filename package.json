@@ -2,7 +2,7 @@
   "name": "lucy",
   "displayName": "Lucy",
   "description": "A general purpose helper",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "publisher": "Twiddly",
   "repository": {
     "url": "https://github.com/twiddli/lucy"
@@ -145,13 +145,13 @@
     "pretest": "yarn run build:test && yarn run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/__tests__/runTest.js",
-    "gen:changelog": "git-cliff --tag --unreleased-only -o CHANGELOG.md"
+    "gen:changelog": "git-cliff -o CHANGELOG.md"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.2",
     "@types/node": "^18.18.1",
-    "@types/vscode": "^1.82.0",
+    "@types/vscode": "~1.53.0",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
     "eslint": "^8.50.0",

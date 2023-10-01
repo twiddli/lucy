@@ -1,22 +1,24 @@
 import * as vscode from "vscode";
-import {
-  capitalize,
-  getMementoValue,
-  uncapitalize,
-  generateID,
-  getPath,
-  updateArrayItem,
-  say,
-  formatTime,
-  showInformationMessage,
-} from "./utils";
+
 import { event, subscribe } from "./event";
 import { PartialExcept, Reminder, WorkspaceStateKey } from "./types";
+import {
+  capitalize,
+  formatTime,
+  generateID,
+  getMementoValue,
+  getPath,
+  say,
+  showInformationMessage,
+  uncapitalize,
+  updateArrayItem,
+} from "./utils";
 
 let reminderTreeProvider: ReminderTreeProvider;
 
 export class ReminderTreeProvider
-  implements vscode.TreeDataProvider<ReminderTreeItem> {
+  implements vscode.TreeDataProvider<ReminderTreeItem>
+{
   getTreeItem(element: ReminderTreeItem): vscode.TreeItem {
     return element;
   }
@@ -123,9 +125,7 @@ function createReminder(text: string): Reminder {
   event.reminders = reminders;
   event.lastReminder = reminder;
 
-  showInformationMessage(
-    `Master, on your next session I will remind you to ${uncapitalize(text)!}`
-  );
+  showInformationMessage(`Lucy will remind you to ${uncapitalize(text)!}`);
 
   return reminder;
 }
@@ -219,9 +219,7 @@ function deleteReminder(reminder: PartialExcept<Reminder, "id">) {
 
 function showReminder(reminder: Reminder) {
   showInformationMessage(
-    (reminder.cleared
-      ? "Master, I already reminded you of: "
-      : "Master, remember to: ") +
+    (reminder.cleared ? "Lucy already reminded you of: " : "Remember to: ") +
       `\n${uncapitalize(reminder.text)}` +
       ` ―― ` +
       (reminder.active ? `\nCurrently active ―` : "") +
@@ -253,10 +251,12 @@ function setupEvents(context: vscode.ExtensionContext) {
     if (value) {
       // get most recent uncleared reminders
       const recent = event.reminders.filter((r) => !r.cleared).slice(0, 3);
-      showInformationMessage(
-        `Master, I was told to remind you of these tasks ―― ` +
-          recent.map((r) => r.text).join(" ― ")
-      );
+      if (recent.length) {
+        showInformationMessage(
+          `Lucy was instructed to remind you of these tasks ―― ` +
+            recent.map((r) => r.text).join(" ― ")
+        );
+      }
     }
   });
 

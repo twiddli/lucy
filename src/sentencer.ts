@@ -1,6 +1,8 @@
 export default class Sentencer {
   constructor(
-    private readonly actions: Record<string, (...args: any[]) => string>
+    private readonly actions: Partial<
+      Record<string, (...args: any[]) => string>
+    >
   ) {}
 
   make(template: string) {
@@ -26,13 +28,14 @@ export default class Sentencer {
             if (actionExists && actContent) {
               try {
                 let args = actContent.split(",").map(maybeCastToNumber);
-                result = self.actions[actionName].apply(null, args);
+                result = actionExists.apply(null, args);
               } catch (e) {}
             }
           }
         } else {
-          if (self.actions[action]) {
-            result = self.actions[action]();
+          let actionExists = self.actions[action];
+          if (actionExists) {
+            result = actionExists();
           } else {
             result = "{{ " + action + " }}";
           }

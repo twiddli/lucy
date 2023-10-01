@@ -12,6 +12,10 @@ This extension contributes the following settings:
 
 - `lucy.sessionInterval`: Minimum window duration in minutes after inactvity before a new coding session can begin
 
+### 1.1.1
+
+- fix lucy reminder message when no reminders
+
 ### 1.1.0
 
 - add new feature: reopen workspace automatically

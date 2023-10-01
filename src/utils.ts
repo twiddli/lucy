@@ -1,14 +1,15 @@
-import * as vscode from "vscode";
 import { join } from "path";
 import { format } from "timeago.js";
+import * as vscode from "vscode";
+
+import { event } from "./event";
+import Sentencer from "./sentencer";
 import {
+  PartialExcept,
   Reminder,
   WorkspaceStateKey,
   WorkspaceStateValue,
-  PartialExcept,
 } from "./types";
-import { event } from "./event";
-import Sentencer from "./sentencer";
 
 const sentencer = new Sentencer({
   encouragement: function () {
@@ -29,7 +30,7 @@ const sentencer = new Sentencer({
     return l[Math.floor(Math.random() * l.length)];
   },
   compliment_c: function () {
-    return capitalize(this.compliment());
+    return capitalize(this.compliment!());
   },
   welcome: function () {
     const l = [
@@ -71,20 +72,27 @@ export function getMementoValue<
   let value = storage.get(key as string);
 
   if (value !== undefined) {
-    if (key === WorkspaceStateKey.last_active)
+    if (key === WorkspaceStateKey.last_active) {
       value = new Date(value as string);
+    }
 
-    if (key === WorkspaceStateKey.last_defocus)
+    if (key === WorkspaceStateKey.last_defocus) {
       value = new Date(value as string);
+    }
 
-    if (key === WorkspaceStateKey.last_focus) value = new Date(value as string);
+    if (key === WorkspaceStateKey.last_focus) {
+      value = new Date(value as string);
+    }
 
-    if (key === WorkspaceStateKey.reminders)
+    if (key === WorkspaceStateKey.reminders) {
       value = (value as Reminder[]).map((r) => {
         r.added = new Date(r.added);
-        if (r.clearDate) r.clearDate = new Date(r.clearDate);
+        if (r.clearDate) {
+          r.clearDate = new Date(r.clearDate);
+        }
         return r;
       });
+    }
 
     return value as T[K];
   }

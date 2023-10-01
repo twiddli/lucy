@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
-import { ValueOf, Reminder } from "./types";
+
+import { Reminder } from "./types";
 
 export const initialEventState = {
   sessionActive: false,
@@ -50,16 +51,13 @@ export const event = new Proxy<typeof initialEventState>(
   proxyHandler
 );
 
-export const stateListeners: Partial<
-  Record<
-    keyof typeof initialEventState,
-    ((value: ValueOf<typeof initialEventState>) => void)[]
-  >
-> = {};
+export const stateListeners: {
+  [K in StateKey]?: ((value: (typeof initialEventState)[K]) => void)[];
+} = {};
 
 export function subscribe<T extends StateKey>(
   key: T,
-  listener: (value: typeof initialEventState[T]) => void
+  listener: (value: (typeof initialEventState)[T]) => void
 ) {
   if (!stateListeners[key]) {
     stateListeners[key] = [];

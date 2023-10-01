@@ -1,18 +1,13 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as vscode from "vscode";
-import { WorkspaceStateKey, WorkspaceStateValue } from "./types";
-import { registerReminder } from "./reminder";
-import {
-  getConfig,
-  getMementoValue,
-  isNewCodingSession,
-  say,
-  showInformationMessage,
-} from "./utils";
-import { event, stateListeners, subscribe } from "./event";
-import { setupStatusbarItem, updateStatus, status } from "./statusbar";
-import { registerWorkspace } from "./workspace";
+import * as vscode from 'vscode';
+
+import { event } from './event';
+import { registerReminder } from './reminder';
+import { setupStatusbarItem, status, updateStatus } from './statusbar';
+import { WorkspaceStateKey } from './types';
+import { getConfig, getMementoValue, isNewCodingSession } from './utils';
+import { registerWorkspace } from './workspace';
 
 function detectCodingSession(windowFocused: boolean) {
   if (windowFocused) {
@@ -86,7 +81,6 @@ export function activate(context: vscode.ExtensionContext) {
   // your extension is activated the very first time the command is executed
   setup(context);
 
-  showInformationMessage(say("{{ welcome }}"));
   detectCodingSession(true);
 }
 

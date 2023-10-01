@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from "fs";
 import { join } from "path";
 import * as vscode from "vscode";
+
 import { say, showInformationMessage } from "./utils";
 
 function setupEvents(context: vscode.ExtensionContext) {}
@@ -51,7 +52,7 @@ function reopenInWorkspace() {
 
       showInformationMessage(
         say(
-          `Master! I found a workspace and I will automatically open it in 3 seconds. ― ${wfiles[0]}`
+          `Lucy found a workspace and I will automatically open it in 3 seconds. ― ${wfiles[0]}`
         ),
         "Cancel"
       ).then((v) => {

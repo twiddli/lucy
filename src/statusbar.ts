@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
-import { WorkspaceStateKey, WorkspaceStateValue } from "./types";
-import { event } from "./event";
-import { formatTime, getMementoValue } from "./utils";
+
 import { STATUSBAR_UPDATE_INTERVAL } from "./constants";
+import { event } from "./event";
+import { WorkspaceStateKey } from "./types";
+import { formatTime, getMementoValue } from "./utils";
 
 export let status: vscode.StatusBarItem;
 const STATUSBAR_REMINDER_LENGTH = 20;
@@ -34,16 +35,14 @@ function statusState() {
 
   const sep = "$(kebab-vertical)";
   const remindersCount = event.reminders.filter((r) => !r.cleared).length;
-  let text = `${sep} Lucy ${sep} $(loading~spin) ${hrsDiff}h ${minsDiff}m ${sep}`;
-  if (remindersCount === 0) {
-    text += ` No tasks ${sep}`;
-  } else {
+  let text = `${sep} $(loading~spin) ${hrsDiff}h ${minsDiff}m ${sep}`;
+  if (remindersCount) {
     const firstReminder = event.reminders[0];
-    text += ` Tasks: ${remindersCount} ${sep}`;
+    text += ` Reminders: ${remindersCount} ${sep}`;
   }
 
   const tooltip =
-    "Lucy keeps track of your session time and tasks, Master! The first one on your list is always displayed here.";
+    "Lucy keeps track of your session time and tasks! The first one on your list is always displayed here.";
 
   return {
     enabled,

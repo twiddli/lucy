@@ -1,18 +1,18 @@
-import { join } from "path";
-import { format } from "timeago.js";
-import * as vscode from "vscode";
+import { join } from 'path';
+import { format } from 'timeago.js';
+import * as vscode from 'vscode';
 
-import { event } from "./event";
-import Sentencer from "./sentencer";
+import { event } from './event';
+import Sentencer from './sentencer';
 import {
   PartialExcept,
   Reminder,
   WorkspaceStateKey,
   WorkspaceStateValue,
-} from "./types";
+} from './types';
 
-const sentencer = new Sentencer({
-  encouragement: function () {
+const compliments = {
+  encouragement() {
     const l = [
       "you can do it",
       "I believe in you master",
@@ -21,7 +21,7 @@ const sentencer = new Sentencer({
     ];
     return l[Math.floor(Math.random() * l.length)];
   },
-  compliment: function () {
+  compliment() {
     const l = [
       "way to go master",
       "good job master",
@@ -29,10 +29,10 @@ const sentencer = new Sentencer({
     ];
     return l[Math.floor(Math.random() * l.length)];
   },
-  compliment_c: function () {
-    return capitalize(this.compliment!());
+  compliment_c() {
+    return capitalize(compliments.compliment());
   },
-  welcome: function () {
+  welcome() {
     const l = [
       "Master... It's good to see you",
       "Master, work hard!",
@@ -40,7 +40,9 @@ const sentencer = new Sentencer({
     ];
     return l[Math.floor(Math.random() * l.length)];
   },
-});
+};
+
+const sentencer = new Sentencer(compliments);
 
 export function say(s: string): string {
   return sentencer.make(s);

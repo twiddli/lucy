@@ -11,7 +11,7 @@ import {
   say,
   showInformationMessage,
   uncapitalize,
-  updateArrayItem,
+  updateArrayItem
 } from "./utils";
 
 let reminderTreeProvider: ReminderTreeProvider;
@@ -253,8 +253,8 @@ function setupEvents(context: vscode.ExtensionContext) {
       const recent = event.reminders.filter((r) => !r.cleared).slice(0, 3);
       if (recent.length) {
         showInformationMessage(
-          `Lucy was instructed to remind you of these tasks ―― ` +
-            recent.map((r) => r.text).join(" ― ")
+          `It's been a while! Lucy was instructed to remind you of these tasks\n―― ` +
+            recent.map((r) => r.text).join("\n ― ")
         );
       }
     }

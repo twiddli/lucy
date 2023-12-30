@@ -2,7 +2,7 @@
 
 ## Features
 
-- Lucy can help remind you of tasks you need to do
+- Lucy can help remind you of tasks you need to do when you come back
 - Lucy can keep track of your coding session time
 - Lucy will detect and open your workspace automatically
 

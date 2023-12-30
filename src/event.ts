@@ -1,9 +1,10 @@
-import * as vscode from "vscode";
+import * as vscode from 'vscode';
 
-import { Reminder } from "./types";
+import { Reminder } from './types';
 
 export const initialEventState = {
   sessionActive: false,
+  afk: false,
   lastReminder: null as Reminder | null,
   reminders: [] as Reminder[],
   context: null as vscode.ExtensionContext | null,

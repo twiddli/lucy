@@ -9,7 +9,13 @@ import { WorkspaceStateKey } from './types';
 import { getConfig, getMementoValue, isNewCodingSession } from './utils';
 import { registerWorkspace } from './workspace';
 
+let afkTimerId: NodeJS.Timeout | undefined;
+
 function detectCodingSession(windowFocused: boolean) {
+  if (afkTimerId) {
+    clearTimeout(afkTimerId);
+  }
+
   if (windowFocused) {
     event.context?.workspaceState.update(
       WorkspaceStateKey.last_focus,
@@ -27,34 +33,58 @@ function detectCodingSession(windowFocused: boolean) {
 
     if (last_defocus) {
       if (isNewCodingSession(last_defocus)) {
-        event.sessionActive = true;
-        event.context?.workspaceState.update(
-          WorkspaceStateKey.last_active,
-          new Date()
-        );
-        updateStatus(status); //update status immediately
+        event.sessionActive = false;
       }
     }
+
+    if (!event.sessionActive) {
+      event.sessionActive = true;
+      event.context?.workspaceState.update(
+        WorkspaceStateKey.last_active,
+        new Date()
+      );
+    }
+
+    afkTimerId = setTimeout(() => {
+      event.afk = false;
+      updateStatus(status);
+    }, 1000 * 5); // 5 seconds
+
+    updateStatus(status); //update status immediately
   } else {
     //keep track of window de-focus date/time for session end tracking
     event.context?.workspaceState.update(
       WorkspaceStateKey.last_defocus,
       new Date()
     );
+
+    // set afk timer
+
+    afkTimerId = setTimeout(() => {
+      event.afk = true;
+      updateStatus(status);
+    }, 1000 * 60 * 5); // 5 minutes
   }
 }
+
+let focusId: NodeJS.Timeout | undefined;
 
 function setupEvents(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.onDidChangeWindowState((s) => {
-      const e = { ...s };
-      const T_OUT = 10000;
+      if (focusId) {
+        clearTimeout(focusId);
+      }
 
-      setTimeout(() => {
+      const e = { ...s };
+      const T_OUT = 5000;
+
+      focusId = setTimeout(() => {
         // sometimes the user will rocus accidentally, so we wait and check if it's still focused
         if (e.focused && !vscode.window.state.focused) {
           return;
         }
+
         detectCodingSession(e.focused);
       }, T_OUT);
     })
@@ -73,16 +103,16 @@ function setup(context: vscode.ExtensionContext) {
 export function activate(context: vscode.ExtensionContext) {
   event.context = context;
   event.config = getConfig();
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "lucy" is now active!');
 
   // this method is called when your extension is activated
   // your extension is activated the very first time the command is executed
   setup(context);
 
-  detectCodingSession(true);
+  detectCodingSession(vscode.window.state.focused);
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  event.sessionActive = false;
+  event.context = null;
+}

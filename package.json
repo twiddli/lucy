@@ -2,7 +2,7 @@
   "name": "lucy",
   "displayName": "Lucy",
   "description": "A general purpose helper",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "publisher": "Twiddly",
   "repository": {
     "url": "https://github.com/twiddli/lucy"

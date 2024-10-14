@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+#### [1.3.0] - 2024-10-14
+
+##### Features ✨
+
+- Add variables viewer;
+
 #### [1.2.0] - 2023-12-30
 
 ##### Features ✨

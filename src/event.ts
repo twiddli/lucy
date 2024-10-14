@@ -1,12 +1,15 @@
 import * as vscode from 'vscode';
 
-import { Reminder } from './types';
+import { Reminder, VariableValue } from "./types";
 
 export const initialEventState = {
   sessionActive: false,
   afk: false,
   lastReminder: null as Reminder | null,
   reminders: [] as Reminder[],
+  variables: {} as { [key: string]: VariableValue },
+  variablesSource: null as vscode.Uri | null,
+  variablesLastModified: 0,
   context: null as vscode.ExtensionContext | null,
   config: {} as {
     sessionInterval: number;

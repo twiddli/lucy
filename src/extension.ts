@@ -1,13 +1,14 @@
-// The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import { event } from './event';
-import { registerReminder } from './reminder';
-import { setupStatusbarItem, status, updateStatus } from './statusbar';
-import { WorkspaceStateKey } from './types';
-import { getConfig, getMementoValue, isNewCodingSession } from './utils';
-import { registerWorkspace } from './workspace';
+import { event } from "./event";
+import { registerReminder } from "./reminder";
+import { setupStatusbarItem, status, updateStatus } from "./statusbar";
+import { WorkspaceStateKey } from "./types";
+import { getConfig, getMementoValue, isNewCodingSession } from "./utils";
+// The module 'vscode' contains the VS Code extensibility API
+import { registerVariables } from "./variables";
+import { registerWorkspace } from "./workspace";
 
 let afkTimerId: NodeJS.Timeout | undefined;
 
@@ -94,6 +95,7 @@ function setupEvents(context: vscode.ExtensionContext) {
 function setup(context: vscode.ExtensionContext) {
   registerWorkspace(context);
   registerReminder(context);
+  registerVariables(context);
   setupStatusbarItem(context);
   setupEvents(context);
 }

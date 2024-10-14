@@ -26,3 +26,12 @@ export type WorkspaceStateValue = {
 export type ValueOf<T> = T[keyof T];
 
 export type PartialExcept<T, K extends keyof T> = Pick<T, K> & Partial<T>;
+
+export type VariableType = "color" | "string";
+export interface VariableValue {
+  key: string;
+  name?: string;
+  value: undefined | string | number | null | boolean;
+  hidden?: boolean;
+  type: VariableType;
+}

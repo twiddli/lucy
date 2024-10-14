@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package",
   "name": "lucy-maid",
   "displayName": "Lucy Maid",
   "description": "A general purpose helper",
@@ -82,6 +83,58 @@
       {
         "command": "lucy.reminderShow",
         "title": "Lucy: Show reminder"
+      },
+      {
+        "command": "lucy.variables.source",
+        "title": "Lucy: Set variables source",
+        "icon": {
+          "dark": "media/add.svg",
+          "light": "media/add_l.svg"
+        }
+      },
+      {
+        "command": "lucy.variables.refresh",
+        "title": "Lucy: Refresh variables"
+      },
+      {
+        "command": "lucy.variables.refresh.title",
+        "title": "Refresh"
+      },
+      {
+        "command": "lucy.variables.show",
+        "title": "Lucy: Show all variables"
+      },
+      {
+        "command": "lucy.variables.show.title",
+        "title": "Show all"
+      },
+      {
+        "command": "lucy.variables.set.hidden",
+        "title": "Lucy: Hide a variable"
+      },
+      {
+        "command": "lucy.variables.set.type.color",
+        "title": "Lucy: Set variable as color type"
+      },
+      {
+        "command": "lucy.variables.set.type.color.all",
+        "title": "Lucy: Set all variables as color type"
+      },
+      {
+        "command": "lucy.variables.set.type.color.all.title",
+        "title": "Set all as color"
+      },
+      {
+        "command": "lucy.variables.set.type.string",
+        "title": "Lucy: Set variable as string type"
+      },
+      {
+        "command": "lucy.variables.set.type.string.all",
+        "title": "Lucy: Set all variables as string type"
+      },
+      {
+        "command": "lucy.variables.set.type.string.all.title",
+        "title": "Set all as string"
       }
     ],
     "views": {
@@ -89,6 +142,10 @@
         {
           "id": "lucy.reminder",
           "name": "Reminder"
+        },
+        {
+          "id": "lucy.variables",
+          "name": "Variables"
         }
       ]
     },
@@ -105,19 +162,48 @@
       {
         "view": "lucy.reminder",
         "contents": "No reminders found.\n[Add Reminder](command:lucy.remind)"
+      },
+      {
+        "view": "lucy.variables",
+        "contents": "No variables source set.\n[Set Variables Source](command:lucy.variables.source)"
       }
     ],
     "menus": {
       "view/title": [
         {
+          "command": "lucy.variables.source",
+          "when": "view == lucy.variables",
+          "group": "navigation@2"
+        },
+        {
+          "command": "lucy.variables.refresh.title",
+          "when": "view == lucy.variables",
+          "group": "navigation@1"
+        },
+        {
+          "command": "lucy.variables.show.title",
+          "when": "view == lucy.variables",
+          "group": "variables@1"
+        },
+        {
+          "command": "lucy.variables.set.type.color.all.title",
+          "when": "view == lucy.variables",
+          "group": "variables_type"
+        },
+        {
+          "command": "lucy.variables.set.type.string.all.title",
+          "when": "view == lucy.variables",
+          "group": "variables_type"
+        },
+        {
           "command": "lucy.remind",
           "when": "view == lucy.reminder",
-          "group": "navigation"
+          "group": "reminder"
         },
         {
           "command": "lucy.reminderClearAll",
           "when": "view == lucy.reminder",
-          "group": "navigation"
+          "group": "reminder"
         }
       ],
       "view/item/context": [
@@ -129,6 +215,20 @@
         {
           "command": "lucy.reminderDelete",
           "when": "view == lucy.reminder && viewItem =~ /reminderItem/"
+        },
+        {
+          "command": "lucy.variables.set.hidden",
+          "when": "view == lucy.variables && viewItem =~ /variable/"
+        },
+        {
+          "command": "lucy.variables.set.type.color",
+          "group": "variables_type",
+          "when": "view == lucy.variables && viewItem =~ /variable/"
+        },
+        {
+          "command": "lucy.variables.set.type.string",
+          "group": "variables_type",
+          "when": "view == lucy.variables && viewItem =~ /variable/"
         }
       ]
     }

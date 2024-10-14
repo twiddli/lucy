@@ -3,7 +3,7 @@
   "name": "lucy-maid",
   "displayName": "Lucy Maid",
   "description": "A general purpose helper",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "publisher": "twiddly",
   "repository": {
     "url": "https://github.com/twiddli/lucy"

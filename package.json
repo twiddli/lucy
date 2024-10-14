@@ -239,6 +239,7 @@
     "compile": "webpack",
     "watch": "webpack --watch",
     "create": "yarn package && vsce package",
+    "publish": "yarn run create && vsce publish",
     "package": "webpack --mode production --devtool hidden-source-map",
     "build:test": "tsc",
     "watch:test": "tsc -watch",

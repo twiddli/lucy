@@ -28,6 +28,7 @@ const proxyHandler: ProxyHandler<typeof initialEventState> = {
     if (!eventKeyFlag[prop]) {
       eventKeyFlag[prop] = true;
       // The default behavior to store the value
+      // @ts-expect-error
       obj[prop] = value;
 
       try {
@@ -36,6 +37,7 @@ const proxyHandler: ProxyHandler<typeof initialEventState> = {
         // here we run the listeners in order
         if (listeners) {
           for (const l of listeners) {
+            // @ts-expect-error
             l(value);
           }
         }
